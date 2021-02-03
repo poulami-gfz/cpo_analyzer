@@ -13,6 +13,9 @@ use std::time::Instant;
 
 /// The main function responsible for actually producing the the pole figures.
 pub fn make_pole_figures(
+    small_figure: bool,
+    no_description_text: bool,
+    elastisity_header: bool,
     n_grains: usize,
     _time_step: &u64,
     particle_id: u64,
@@ -21,7 +24,6 @@ pub fn make_pole_figures(
     output_file: &Path,
     particle_record: &ParticleRecord,
     time: f64,
-    elastisity_header: bool,
     gam: f64,
     color_gradient_selection: String,
     max_count_method: String,
@@ -58,9 +60,6 @@ pub fn make_pole_figures(
             bd_theta[i].cos() * bd_radius + bd_center[1],
         ));
     }
-
-    let small_figure = true;
-    let no_description_text = false;
 
     let figure_height = if small_figure { 500 } else { 800 };
     let legend_width = if small_figure { 150 } else { 200 };
@@ -106,7 +105,7 @@ pub fn make_pole_figures(
     let wp = Percentage {
         total: total_figure_width as f64 / number_of_figures_horizontal as f64,
     };
-    let font_size_header = if small_figure { 30 } else { 38 };
+    let font_size_header = if small_figure { 24 } else { 38 };
     let line_distance = 5.5;
     let top_margin = 0.25;
     let left_margin = 0.5;
@@ -171,19 +170,19 @@ pub fn make_pole_figures(
         let mono_perc_full = mono_unsorted
             .iter()
             .map(|v| (v / full_norm_square) * 100.)
-            .collect::<Vec<f64>>(); 
+            .collect::<Vec<f64>>();
         let orth_perc_full = orth_unsorted
             .iter()
             .map(|v| (v / full_norm_square) * 100.)
-            .collect::<Vec<f64>>(); 
+            .collect::<Vec<f64>>();
         let tetr_perc_full = tetr_unsorted
             .iter()
             .map(|v| (v / full_norm_square) * 100.)
-            .collect::<Vec<f64>>(); 
+            .collect::<Vec<f64>>();
         let hexa_perc_full = hexa_unsorted
             .iter()
             .map(|v| (v / full_norm_square) * 100.)
-            .collect::<Vec<f64>>(); 
+            .collect::<Vec<f64>>();
 
         println!(
             "    end computing anisotropy: Elapsed time: {:.2?}",
@@ -191,14 +190,13 @@ pub fn make_pole_figures(
         );
         println!("    start header: Elapsed time: {:.2?}", before.elapsed());
 
-        println!("    mid header 0: Elapsed time: {:.2?}", before.elapsed());
         header
         .draw(&Text::new(
             format!("id={},time={:.5e}, position=({:.3e}:{:.3e}:{:.3e}), ODT={:.4}, grains={}, anisotropic%={:.4}",particle_id,time,particle_record.x,particle_record.y,particle_record.z.unwrap(),particle_record.olivine_deformation_type, n_grains,((total_anisotropy)/full_norm_square)*100.),
             ((wp.calc(left_margin) ) as i32, hp.calc(top_margin) as i32),
             (font_type, font_size_header).into_font(),
         ))?;
-        println!("    mid header 1: Elapsed time: {:.2?}", before.elapsed());
+
         header.draw(&Text::new(
             format!(
                 "hex%={:.2},{:.2},{:.2}",
@@ -210,7 +208,7 @@ pub fn make_pole_figures(
             ),
             (font_type, font_size_header).into_font(),
         ))?;
-        println!("    mid header 2: Elapsed time: {:.2?}", before.elapsed());
+
         header.draw(&Text::new(
             format!(
                 "h/a%={:.2},{:.2},{:.2}",
@@ -365,7 +363,6 @@ pub fn make_pole_figures(
             };
 
             if horizontal_figure_number == 0 {
-
                 let mut chart = ChartBuilder::on(&right_areas[vertical_figure_number])
                     .margin(25)
                     .margin_right(2)

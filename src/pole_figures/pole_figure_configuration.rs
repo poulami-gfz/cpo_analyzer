@@ -4,8 +4,15 @@ use serde_derive::Deserialize;
 /// The configuration of the pole figure analysis.
 #[derive(Deserialize)]
 pub struct PoleFiguresConfiguration {
-    /// Whether to inluce elasticity information in the header of the polefigure.
-    pub elastisity_header: bool,
+    /// Optional value whether to inluce elasticity information in the header of the polefigure.
+    /// Default is true.
+    pub elastisity_header: Option<bool>,
+    /// Optional value whether to create a small (500x500 per pole figure) or normal (800x800 per pole figure) figure size.
+    /// Default is false.
+    pub small_figure: Option<bool>,
+    /// Optional value whether to omit mineral and axis information to the figure.
+    /// Default value is false.
+    pub no_description_text: Option<bool>,
     /// A vector containing the times at which to make the pole figures. The acutal times are set to the closest time
     /// for which data is available.
     pub times: Vec<f64>,

@@ -146,6 +146,7 @@ pub fn process(config_file: PathBuf) -> Result<(), Box<dyn std::error::Error>> {
 
     let config: Config = toml::from_str(&config_file_string).unwrap();
 
+    let elastisity_header = config.pole_figures.elastisity_header.unwrap_or(true);
     println!(
         "particle ids size {}",
         config.pole_figures.particle_ids.len()
@@ -317,7 +318,7 @@ pub fn process(config_file: PathBuf) -> Result<(), Box<dyn std::error::Error>> {
                         "{}{}_{}{}{}{}_g{}_sp{}_mc{}_t{:05}.{:05}_km100.png",
                         lpo_dir,
                         file_prefix_figures,
-                        if config.pole_figures.elastisity_header {
+                        if elastisity_header {
                             "elastic_"
                         } else {
                             "no-elastic_"
@@ -611,6 +612,9 @@ pub fn process(config_file: PathBuf) -> Result<(), Box<dyn std::error::Error>> {
                     }
 
                     make_pole_figures(
+                        config.pole_figures.small_figure.unwrap_or(false),
+                        config.pole_figures.no_description_text.unwrap_or(false),
+                        elastisity_header,
                         n_grains,
                         &time_step,
                         0,
@@ -619,7 +623,6 @@ pub fn process(config_file: PathBuf) -> Result<(), Box<dyn std::error::Error>> {
                         output_file,
                         &particle_record,
                         time,
-                        config.pole_figures.elastisity_header,
                         gam,
                         color_gradient_selection.to_string(),
                         max_count_method.to_string(),
