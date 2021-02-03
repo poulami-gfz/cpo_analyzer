@@ -171,19 +171,19 @@ pub fn make_pole_figures(
         let mono_perc_full = mono_unsorted
             .iter()
             .map(|v| (v / full_norm_square) * 100.)
-            .collect::<Vec<f64>>(); //.collect();
+            .collect::<Vec<f64>>(); 
         let orth_perc_full = orth_unsorted
             .iter()
             .map(|v| (v / full_norm_square) * 100.)
-            .collect::<Vec<f64>>(); //.collect();
+            .collect::<Vec<f64>>(); 
         let tetr_perc_full = tetr_unsorted
             .iter()
             .map(|v| (v / full_norm_square) * 100.)
-            .collect::<Vec<f64>>(); //.collect();
+            .collect::<Vec<f64>>(); 
         let hexa_perc_full = hexa_unsorted
             .iter()
             .map(|v| (v / full_norm_square) * 100.)
-            .collect::<Vec<f64>>(); //.collect();
+            .collect::<Vec<f64>>(); 
 
         println!(
             "    end computing anisotropy: Elapsed time: {:.2?}",
@@ -365,8 +365,6 @@ pub fn make_pole_figures(
             };
 
             if horizontal_figure_number == 0 {
-                //let (_margin, legend_horizontal) =
-                //    right_areas[vertical_figure_number].split_horizontally(20);
 
                 let mut chart = ChartBuilder::on(&right_areas[vertical_figure_number])
                     .margin(25)
@@ -452,7 +450,7 @@ pub fn make_pole_figures(
                     -lambert.r_plane - 0.05..lambert.r_plane + 0.15,
                 )?;
             let counts = &pole_figure_grid[horizontal_figure_number][vertical_figure_number].counts;
-            let npts = counts.shape()[0]; //sphere_points;//151; //counts.shape();// counts_a.shape()[0];
+            let npts = counts.shape()[0];
 
             let mut current: Vec<Vec<Vec<(f64, f64)>>> = Vec::new();
             for i in 0..npts - 1 {
