@@ -395,7 +395,7 @@ pub fn make_pole_figures(
                         },
                         ("helvetica", font_size_figure),
                     )
-                    .build_ranged(0.0..1.0, 0.0..max_count_value_colorscale)?;
+                    .build_cartesian_2d(0.0..1.0, 0.0..max_count_value_colorscale)?;
 
                 chart
                     .configure_mesh()
@@ -416,14 +416,17 @@ pub fn make_pole_figures(
                 }
 
                 for i in 0..legend_size - 1 {
+                    let picked_color = color_gradient.get(
+                        ((matrix[i]).powf(gam) / (max_count_value_colorscale.powf(gam))) as f32,
+                    );
+                    let picked_rgb_color = RGBColor(
+                        (picked_color.red * 255.0) as u8,
+                        (picked_color.green * 255.0) as u8,
+                        (picked_color.blue * 255.0) as u8,
+                    );
                     chart.draw_series(std::iter::once(Rectangle::new(
                         [(0.0, matrix[i]), (0.0 + 1.0, matrix[i + 1])],
-                        color_gradient
-                            .get(
-                                ((matrix[i]).powf(gam) / (max_count_value_colorscale.powf(gam)))
-                                    as f32,
-                            )
-                            .filled(),
+                        picked_rgb_color.filled(),
                     )))?;
                 }
             }
@@ -442,7 +445,7 @@ pub fn make_pole_figures(
                     Mineral::Enstatite => "enstatite",
                 };
             let mut chart = ChartBuilder::on(&drawing_areas_vertical[vertical_figure_number])
-                .build_ranged(
+                .build_cartesian_2d(
                     -lambert.r_plane - 0.05..lambert.r_plane + 0.15,
                     -lambert.r_plane - 0.05..lambert.r_plane + 0.15,
                 )?;
@@ -487,14 +490,20 @@ pub fn make_pole_figures(
 
             for i in 0..npts - 1 {
                 for j in 0..npts - 1 {
+                    let picked_color = color_gradient.get(
+                        ((counts[[i, j]]).powf(gam) / (max_count_value_colorscale.powf(gam)))
+                            as f32,
+                    );
+                    let picked_rgb_color = RGBColor(
+                        (picked_color.red * 255.0) as u8,
+                        (picked_color.green * 255.0) as u8,
+                        (picked_color.blue * 255.0) as u8,
+                    );
+
                     if !mask[[i, j]].is_nan() {
                         chart.draw_series(std::iter::once(Polygon::new(
                             current[i][j].clone(),
-                            &color_gradient.get(
-                                ((counts[[i, j]]).powf(gam)
-                                    / (max_count_value_colorscale.powf(gam)))
-                                    as f32,
-                            ),
+                            picked_rgb_color.filled(),
                         )))?;
                     }
                 }
