@@ -1,4 +1,4 @@
-#CPO analyzer
+# CPO analyzer
 
 This crate contains tools to analyzer Crystal/Lattice Preffered Orientation (CPO/LPO) data. It is currently only able to crate sets of polefigures from ASPECT CPO data, but other type of inputs and plots of analysis are in the scope of this crate.
 
