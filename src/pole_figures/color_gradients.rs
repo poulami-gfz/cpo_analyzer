@@ -1,7 +1,7 @@
 use palette::gradient::*;
 use palette::rgb::*;
 
-/// This function sets the color gradient based on the a provided string. Options are `vik`, `batlow`, `standard`, 
+/// This function sets the color gradient based on the a provided string. Options are `vik`, `batlow`, `standard`,
 /// `imola`, `hawaii` and `roma`.
 pub fn set_color_gradient(color_gradient_selection: String) -> Gradient<LinSrgb> {
     match &color_gradient_selection[..] {

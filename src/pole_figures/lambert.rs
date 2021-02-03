@@ -16,7 +16,7 @@ pub struct Lambert {
 
 /// Create a grid of evenly spaced points for contouring pole figure
 /// matlab-version of drex uses 151 x 151 points.
-/// 
+///
 /// Note wikipedia has the transformation for the lambert equal area projection
 /// for both X,Y --> x,y,z and x,y,z --> X,Y
 /// so given the Pa directions (unit vectors, do R = 1 on a sphere) in x,y,z,
@@ -95,7 +95,7 @@ pub fn create_lambert_equal_area_gridpoint(
     x = x / &mag;
     y = y / &mag;
     z = z / &mag;
-    
+
     Ok(Lambert {
         x_plane: x_plane,
         z_plane: z_plane,

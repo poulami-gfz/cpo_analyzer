@@ -1,55 +1,54 @@
-
 //! # CPO analyzer
-//! 
-//! This crate contains tools to analyzer Crystal/Lattice Preffered Orientation (CPO/LPO) data. It is currently 
-//! only able to crate sets of polefigures from ASPECT CPO data, but other type of inputs and plots of analysis 
+//!
+//! This crate contains tools to analyzer Crystal/Lattice Preffered Orientation (CPO/LPO) data. It is currently
+//! only able to crate sets of polefigures from ASPECT CPO data, but other type of inputs and plots of analysis
 //! are in the scope of this crate.
-//! 
-//! Note that this crate is a very early (beta) release, and it functions for the specific purpose it was build 
-//! for, but a lot of functionality that is currently hard-coded can be generalized if there is interest. This 
+//!
+//! Note that this crate is a very early (beta) release, and it functions for the specific purpose it was build
+//! for, but a lot of functionality that is currently hard-coded can be generalized if there is interest. This
 //! also means that the current interface and input file structure is subject to change.
-//! 
-//! To run the analyzer, a configuration file is needed. The configuration files are written in the `.toml` 
+//!
+//! To run the analyzer, a configuration file is needed. The configuration files are written in the `.toml`
 //! language. Here is an example file (where the lines starting with a `#` are comments):
-//! 
+//!
 //! ```toml
 //! # the location of the experiment dirs.
-//! base_dir = "/path/to/base/dir/" 
-//! 
+//! base_dir = "/path/to/base/dir/"
+//!
 //! # the directories containing the experiments. Currently only ASPECT output directories
 //! # are supported.
 //! experiment_dirs = ["experiment_1","experiment2"]
 //!  
 //! # Whether the Data was compressed with ZLIB.
-//! compressed = true 
-//! 
+//! compressed = true
+//!
 //! [pole_figures]
 //!   # Wheter to include elasticity information in the header of the polefigure plots.
-//!   elastisity_header = false 
-//! 
+//!   elastisity_header = false
+//!
 //!   # For each time in this vector a new polefigure plot is made.
 //!   times = [1.0,5.0,10]
-//! 
+//!
 //!   # For each id in this vector a new polefigure plot is made.
 //!   particle_ids = [1,10]
-//! 
-//!   # A vector containing the pole figure axis to be plotted. These will be added as a 
+//!
+//!   # A vector containing the pole figure axis to be plotted. These will be added as a
 //!   # horizontal axis to the plot. Available options are `AAxis`, `BAxis` and `CAxis`.
 //!   axes = ["AAxis","BAxis","CAxis"]
-//! 
-//!   # A vector containing the minerals to be plotted. These will be added as a vertical 
+//!
+//!   # A vector containing the minerals to be plotted. These will be added as a vertical
 //!   # axis  to the plot. Available options are `Olivine` and `Enstatite`.
 //!   minerals = ["Olivine","Enstatite"]
 //! ```
-//! 
+//!
 //! The configuration file without comments:
 //! ```toml
-//! base_dir = "/path/to/base/dir/" 
+//! base_dir = "/path/to/base/dir/"
 //! experiment_dirs = ["experiment_1","experiment2"]
-//! compressed = true 
-//! 
+//! compressed = true
+//!
 //! [pole_figures]
-//!   elastisity_header = false 
+//!   elastisity_header = false
 //!   times = [1.0,5.0,10]
 //!   particle_ids = [1,10]
 //!   axes = ["AAxis","BAxis","CAxis"]
@@ -190,7 +189,7 @@ pub fn process(config_file: PathBuf) -> Result<(), Box<dyn std::error::Error>> {
             .delimiter(b' ')
             .comment(Some(b'#'))
             .has_headers(false)
-            .from_reader(data.as_bytes()); 
+            .from_reader(data.as_bytes());
         for result in rdr.records() {
             // The iterator yields Result<StringRecord, Error>, so we check the
             // error here..
@@ -392,28 +391,33 @@ pub fn process(config_file: PathBuf) -> Result<(), Box<dyn std::error::Error>> {
                             let deg_to_rad = std::f64::consts::PI / 180.;
 
                             // olivine
-                            let dcm = dir_cos_matrix2(
+                            let euler_angles = Array::from(vec![
                                 record.mineral_0_EA_phi.unwrap() * deg_to_rad,
                                 record.mineral_0_EA_theta.unwrap() * deg_to_rad,
                                 record.mineral_0_EA_z.unwrap() * deg_to_rad,
-                            )
-                            .unwrap();
+                            ]);
+                            let rotation_matrix =
+                                euler_angles_to_rotation_matrix(euler_angles).unwrap();
 
-                            particle_olivine_a_axis_vectors.push(dcm.row(0).to_owned());
-                            particle_olivine_b_axis_vectors.push(dcm.row(1).to_owned());
-                            particle_olivine_c_axis_vectors.push(dcm.row(2).to_owned());
+                            particle_olivine_a_axis_vectors.push(rotation_matrix.row(0).to_owned());
+                            particle_olivine_b_axis_vectors.push(rotation_matrix.row(1).to_owned());
+                            particle_olivine_c_axis_vectors.push(rotation_matrix.row(2).to_owned());
 
                             // enstatite
-                            let dcm = dir_cos_matrix2(
+                            let euler_angles = Array::from(vec![
                                 record.mineral_1_EA_phi.unwrap() * deg_to_rad,
                                 record.mineral_1_EA_theta.unwrap() * deg_to_rad,
                                 record.mineral_1_EA_z.unwrap() * deg_to_rad,
-                            )
-                            .unwrap();
+                            ]);
+                            let rotation_matrix =
+                                euler_angles_to_rotation_matrix(euler_angles).unwrap();
 
-                            particle_enstatite_a_axis_vectors.push(dcm.row(0).to_owned());
-                            particle_enstatite_b_axis_vectors.push(dcm.row(1).to_owned());
-                            particle_enstatite_c_axis_vectors.push(dcm.row(2).to_owned());
+                            particle_enstatite_a_axis_vectors
+                                .push(rotation_matrix.row(0).to_owned());
+                            particle_enstatite_b_axis_vectors
+                                .push(rotation_matrix.row(1).to_owned());
+                            particle_enstatite_c_axis_vectors
+                                .push(rotation_matrix.row(2).to_owned());
                         }
                         integer = integer + 1;
                     }
@@ -634,28 +638,31 @@ pub fn process(config_file: PathBuf) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-
 /// Utility function to compute a rotation matrix from Z-X-Z Euler angles.
-fn dir_cos_matrix2(
-    phi1: f64,
-    theta: f64,
-    phi2: f64,
+fn euler_angles_to_rotation_matrix(
+    euler_angles: Array<f64, ndarray::Dim<[usize; 1]>>, //phi1: f64,
+                                                        //theta: f64,
+                                                        //phi2: f64
 ) -> Result<Array2<f64>, Box<dyn std::error::Error>> {
-    let mut dcm: Array2<f64> = Array::zeros((3, 3));
+    let mut rotation_matrix: Array2<f64> = Array::zeros((3, 3));
 
-    dcm[[0, 0]] = phi2.cos() * phi1.cos() - theta.cos() * phi1.sin() * phi2.sin();
-    dcm[[0, 1]] = -phi2.cos() * phi1.sin() - theta.cos() * phi1.cos() * phi2.sin();
-    dcm[[0, 2]] = -phi2.sin() * theta.sin();
+    rotation_matrix[[0, 0]] = euler_angles[2].cos() * euler_angles[0].cos()
+        - euler_angles[1].cos() * euler_angles[0].sin() * euler_angles[2].sin();
+    rotation_matrix[[0, 1]] = -euler_angles[2].cos() * euler_angles[0].sin()
+        - euler_angles[1].cos() * euler_angles[0].cos() * euler_angles[2].sin();
+    rotation_matrix[[0, 2]] = -euler_angles[2].sin() * euler_angles[1].sin();
 
-    dcm[[1, 0]] = phi2.sin() * phi1.cos() + theta.cos() * phi1.sin() * phi2.cos();
-    dcm[[1, 1]] = -phi2.sin() * phi1.sin() + theta.cos() * phi1.cos() * phi2.cos();
-    dcm[[1, 2]] = phi2.cos() * theta.sin();
+    rotation_matrix[[1, 0]] = euler_angles[2].sin() * euler_angles[0].cos()
+        + euler_angles[1].cos() * euler_angles[0].sin() * euler_angles[2].cos();
+    rotation_matrix[[1, 1]] = -euler_angles[2].sin() * euler_angles[0].sin()
+        + euler_angles[1].cos() * euler_angles[0].cos() * euler_angles[2].cos();
+    rotation_matrix[[1, 2]] = euler_angles[2].cos() * euler_angles[1].sin();
 
-    dcm[[2, 0]] = -theta.sin() * phi1.sin();
-    dcm[[2, 1]] = -theta.sin() * phi1.cos();
-    dcm[[2, 2]] = theta.cos();
+    rotation_matrix[[2, 0]] = -euler_angles[1].sin() * euler_angles[0].sin();
+    rotation_matrix[[2, 1]] = -euler_angles[1].sin() * euler_angles[0].cos();
+    rotation_matrix[[2, 2]] = euler_angles[1].cos();
 
-    Ok(dcm)
+    Ok(rotation_matrix)
 }
 
 /// Following method in Robin and Jowett, Tectonophysics, 1986
@@ -694,4 +701,361 @@ fn gaussian_orientation_counts(
     let counts = counts / (3. * std_dev);
 
     Ok(counts)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn euler_angles_from_rotation_matrix(
+        rotation_matrix: Array2<f64>,
+    ) -> Array<f64, ndarray::Dim<[usize; 1]>> {
+        // ZXZ Euler angles
+        let mut euler_angles = Array::zeros(3);
+
+        let theta = rotation_matrix[[2, 2]].acos();
+        let mut phi1 = 0.0;
+        let phi2;
+
+        if theta != 0.0 && theta != std::f64::consts::PI {
+            phi1 = (rotation_matrix[[2, 0]] / -theta.sin())
+                .atan2(rotation_matrix[[2, 1]] / -theta.sin());
+            phi2 = (rotation_matrix[[0, 2]] / -theta.sin())
+                .atan2(rotation_matrix[[1, 2]] / theta.sin());
+        } else {
+            // note that in the case theta is 0 or phi a dimension is lost
+            // see: https://en.wikipedia.org/wiki/Gimbal_lock. We set phi1
+            // to 0 and compute the corresponding phi2. The resulting direction
+            // (cosine matrix) should be the same.
+            if theta == 0.0 {
+                phi2 = -phi1 - rotation_matrix[[0, 1]].atan2(rotation_matrix[[0, 0]]);
+            } else {
+                phi2 = phi1 + rotation_matrix[[0, 1]].atan2(rotation_matrix[[0, 0]]);
+            }
+        }
+
+        euler_angles[0] = phi1;
+        euler_angles[1] = theta;
+        euler_angles[2] = phi2;
+
+        euler_angles[0] = euler_angles[0]
+            - 2.0 * std::f64::consts::PI * (euler_angles[0] / (2.0 * std::f64::consts::PI)).floor();
+        euler_angles[1] = euler_angles[1]
+            - 2.0 * std::f64::consts::PI * (euler_angles[1] / (2.0 * std::f64::consts::PI)).floor();
+        euler_angles[2] = euler_angles[2]
+            - 2.0 * std::f64::consts::PI * (euler_angles[2] / (2.0 * std::f64::consts::PI)).floor();
+
+        euler_angles
+    }
+
+    #[test]
+    fn test_euler_angle_and_rotation_matrix_functions_part_1() {
+        let mut rot1 = Array2::zeros((3, 3));
+        rot1[[0, 0]] = 0.36;
+        rot1[[0, 1]] = 0.48;
+        rot1[[0, 2]] = -0.8;
+
+        rot1[[1, 0]] = -0.8;
+        rot1[[1, 1]] = 0.6;
+        rot1[[1, 2]] = 0.;
+
+        rot1[[2, 0]] = 0.48;
+        rot1[[2, 1]] = 0.64;
+        rot1[[2, 2]] = 0.6;
+
+        let ea1 = euler_angles_from_rotation_matrix(rot1.clone());
+        let rot2 = euler_angles_to_rotation_matrix(ea1).unwrap();
+
+        assert!(
+            (rot1[[0, 0]] - rot2[[0, 0]]).abs() < 1e-8,
+            "Difference between rot1[0,0] ({}) and rot2[0,0] ({}) is too large: {}.",
+            rot1[[0, 0]],
+            rot2[[0, 0]],
+            (rot1[[0, 0]] - rot2[[0, 0]]).abs()
+        );
+        assert!(
+            (rot1[[0, 1]] - rot2[[0, 1]]).abs() < 1e-8,
+            "Difference between rot1[0,1] ({}) and rot2[0,1] ({}) is too large: {}.",
+            rot1[[0, 1]],
+            rot2[[0, 1]],
+            (rot1[[0, 1]] - rot2[[0, 1]]).abs()
+        );
+        assert!(
+            (rot1[[0, 2]] - rot2[[0, 2]]).abs() < 1e-8,
+            "Difference between rot1[0,2] ({}) and rot2[0,2] ({}) is too large: {}.",
+            rot1[[0, 2]],
+            rot2[[0, 2]],
+            (rot1[[0, 2]] - rot2[[0, 2]]).abs()
+        );
+        assert!(
+            (rot1[[1, 0]] - rot2[[1, 0]]).abs() < 1e-8,
+            "Difference between rot1[1,0] ({}) and rot2[1,0] ({}) is too large: {}.",
+            rot1[[1, 0]],
+            rot2[[1, 0]],
+            (rot1[[1, 0]] - rot2[[1, 0]]).abs()
+        );
+        assert!(
+            (rot1[[1, 1]] - rot2[[1, 1]]).abs() < 1e-8,
+            "Difference between rot1[1,1] ({}) and rot2[1,1] ({}) is too large: {}.",
+            rot1[[1, 1]],
+            rot2[[1, 1]],
+            (rot1[[1, 1]] - rot2[[1, 1]]).abs()
+        );
+        assert!(
+            (rot1[[1, 2]] - rot2[[1, 2]]).abs() < 1e-8,
+            "Difference between rot1[1,2] ({}) and rot2[1,2] ({}) is too large: {}.",
+            rot1[[1, 2]],
+            rot2[[1, 2]],
+            (rot1[[1, 2]] - rot2[[1, 2]]).abs()
+        );
+        assert!(
+            (rot1[[2, 0]] - rot2[[2, 0]]).abs() < 1e-8,
+            "Difference between rot1[2,0] ({}) and rot2[2,0] ({}) is too large: {}.",
+            rot1[[2, 0]],
+            rot2[[2, 0]],
+            (rot1[[2, 0]] - rot2[[2, 0]]).abs()
+        );
+        assert!(
+            (rot1[[2, 1]] - rot2[[2, 1]]).abs() < 1e-8,
+            "Difference between rot1[2,1] ({}) and rot2[2,1] ({}) is too large: {}.",
+            rot1[[2, 1]],
+            rot2[[2, 1]],
+            (rot1[[2, 1]] - rot2[[2, 1]]).abs()
+        );
+        assert!(
+            (rot1[[2, 2]] - rot2[[2, 2]]).abs() < 1e-8,
+            "Difference between rot1[2,2] ({}) and rot2[2,2] ({}) is too large: {}.",
+            rot1[[2, 2]],
+            rot2[[2, 2]],
+            (rot1[[2, 2]] - rot2[[2, 2]]).abs()
+        );
+
+        let ea2 = euler_angles_from_rotation_matrix(rot2.clone());
+        let rot3 = euler_angles_to_rotation_matrix(ea2).unwrap();
+
+        assert!(
+            (rot1[[0, 0]] - rot3[[0, 0]]).abs() < 1e-8,
+            "Difference between rot1[0,0] ({}) and rot3[0,0] ({}) is too large: {}.",
+            rot1[[0, 0]],
+            rot3[[0, 0]],
+            (rot1[[0, 0]] - rot3[[0, 0]]).abs()
+        );
+        assert!(
+            (rot1[[0, 1]] - rot3[[0, 1]]).abs() < 1e-8,
+            "Difference between rot1[0,1] ({}) and rot3[0,1] ({}) is too large: {}.",
+            rot1[[0, 1]],
+            rot3[[0, 1]],
+            (rot1[[0, 1]] - rot3[[0, 1]]).abs()
+        );
+        assert!(
+            (rot1[[0, 2]] - rot3[[0, 2]]).abs() < 1e-8,
+            "Difference between rot1[0,2] ({}) and rot3[0,2] ({}) is too large: {}.",
+            rot1[[0, 2]],
+            rot3[[0, 2]],
+            (rot1[[0, 2]] - rot3[[0, 2]]).abs()
+        );
+        assert!(
+            (rot1[[1, 0]] - rot3[[1, 0]]).abs() < 1e-8,
+            "Difference between rot1[1,0] ({}) and rot3[1,0] ({}) is too large: {}.",
+            rot1[[1, 0]],
+            rot3[[1, 0]],
+            (rot1[[1, 0]] - rot3[[1, 0]]).abs()
+        );
+        assert!(
+            (rot1[[1, 1]] - rot3[[1, 1]]).abs() < 1e-8,
+            "Difference between rot1[1,1] ({}) and rot3[1,1] ({}) is too large: {}.",
+            rot1[[1, 1]],
+            rot3[[1, 1]],
+            (rot1[[1, 1]] - rot3[[1, 1]]).abs()
+        );
+        assert!(
+            (rot1[[1, 2]] - rot3[[1, 2]]).abs() < 1e-8,
+            "Difference between rot1[1,2] ({}) and rot3[1,2] ({}) is too large: {}.",
+            rot1[[1, 2]],
+            rot3[[1, 2]],
+            (rot1[[1, 2]] - rot3[[1, 2]]).abs()
+        );
+        assert!(
+            (rot1[[2, 0]] - rot3[[2, 0]]).abs() < 1e-8,
+            "Difference between rot1[2,0] ({}) and rot3[2,0] ({}) is too large: {}.",
+            rot1[[2, 0]],
+            rot3[[2, 0]],
+            (rot1[[2, 0]] - rot3[[2, 0]]).abs()
+        );
+        assert!(
+            (rot1[[2, 1]] - rot3[[2, 1]]).abs() < 1e-8,
+            "Difference between rot1[2,1] ({}) and rot3[2,1] ({}) is too large: {}.",
+            rot1[[2, 1]],
+            rot3[[2, 1]],
+            (rot1[[2, 1]] - rot3[[2, 1]]).abs()
+        );
+        assert!(
+            (rot1[[2, 2]] - rot3[[2, 2]]).abs() < 1e-8,
+            "Difference between rot1[2,2] ({}) and rot3[2,2] ({}) is too large: {}.",
+            rot1[[2, 2]],
+            rot3[[2, 2]],
+            (rot1[[2, 2]] - rot3[[2, 2]]).abs()
+        );
+    }
+
+    #[test]
+    fn test_euler_angle_and_rotation_matrix_functions_part_2() {
+        let mut rot1 = Array2::zeros((3, 3));
+        rot1[[0, 0]] = 0.36;
+        rot1[[0, 1]] = 0.48;
+        rot1[[0, 2]] = -0.8;
+
+        rot1[[1, 0]] = -0.8;
+        rot1[[1, 1]] = 0.6;
+        rot1[[1, 2]] = 0.;
+
+        rot1[[2, 0]] = 0.0;
+        rot1[[2, 1]] = 0.0;
+        rot1[[2, 2]] = 0.0;
+
+        let mut rot2_expected = Array2::zeros((3, 3));
+        rot2_expected[[0, 0]] = 0.;
+        rot2_expected[[0, 1]] = 0.;
+        rot2_expected[[0, 2]] = -1.;
+        rot2_expected[[1, 0]] = -1.;
+        rot2_expected[[1, 1]] = 0.0;
+        rot2_expected[[1, 2]] = 0.0;
+        rot2_expected[[2, 0]] = 0.0;
+        rot2_expected[[2, 1]] = 1.0;
+        rot2_expected[[2, 2]] = 0.0;
+
+        let ea1 = euler_angles_from_rotation_matrix(rot1.clone());
+        let rot2 = euler_angles_to_rotation_matrix(ea1).unwrap();
+
+        assert!(
+            (rot2_expected[[0, 0]] - rot2[[0, 0]]).abs() < 1e-8,
+            "Difference between rot2_expected[0,0] ({}) and rot2[0,0] ({}) is too large: {}.",
+            rot2_expected[[0, 0]],
+            rot2[[0, 0]],
+            (rot2_expected[[0, 0]] - rot2[[0, 0]]).abs()
+        );
+        assert!(
+            (rot2_expected[[0, 1]] - rot2[[0, 1]]).abs() < 1e-8,
+            "Difference between rot2_expected[0,1] ({}) and rot2[0,1] ({}) is too large: {}.",
+            rot2_expected[[0, 1]],
+            rot2[[0, 1]],
+            (rot2_expected[[0, 1]] - rot2[[0, 1]]).abs()
+        );
+        assert!(
+            (rot2_expected[[0, 2]] - rot2[[0, 2]]).abs() < 1e-8,
+            "Difference between rot2_expected[0,2] ({}) and rot2[0,2] ({}) is too large: {}.",
+            rot2_expected[[0, 2]],
+            rot2[[0, 2]],
+            (rot2_expected[[0, 2]] - rot2[[0, 2]]).abs()
+        );
+        assert!(
+            (rot2_expected[[1, 0]] - rot2[[1, 0]]).abs() < 1e-8,
+            "Difference between rot2_expected[1,0] ({}) and rot2[1,0] ({}) is too large: {}.",
+            rot2_expected[[1, 0]],
+            rot2[[1, 0]],
+            (rot2_expected[[1, 0]] - rot2[[1, 0]]).abs()
+        );
+        assert!(
+            (rot2_expected[[1, 1]] - rot2[[1, 1]]).abs() < 1e-8,
+            "Difference between rot2_expected[1,1] ({}) and rot2[1,1] ({}) is too large: {}.",
+            rot2_expected[[1, 1]],
+            rot2[[1, 1]],
+            (rot2_expected[[1, 1]] - rot2[[1, 1]]).abs()
+        );
+        assert!(
+            (rot2_expected[[1, 2]] - rot2[[1, 2]]).abs() < 1e-8,
+            "Difference between rot2_expected[1,2] ({}) and rot2[1,2] ({}) is too large: {}.",
+            rot2_expected[[1, 2]],
+            rot2[[1, 2]],
+            (rot2_expected[[1, 2]] - rot2[[1, 2]]).abs()
+        );
+        assert!(
+            (rot2_expected[[2, 0]] - rot2[[2, 0]]).abs() < 1e-8,
+            "Difference between rot2_expected[2,0] ({}) and rot2[2,0] ({}) is too large: {}.",
+            rot2_expected[[2, 0]],
+            rot2[[2, 0]],
+            (rot2_expected[[2, 0]] - rot2[[2, 0]]).abs()
+        );
+        assert!(
+            (rot2_expected[[2, 1]] - rot2[[2, 1]]).abs() < 1e-8,
+            "Difference between rot2_expected[2,1] ({}) and rot2[2,1] ({}) is too large: {}.",
+            rot2_expected[[2, 1]],
+            rot2[[2, 1]],
+            (rot2_expected[[2, 1]] - rot2[[2, 1]]).abs()
+        );
+        assert!(
+            (rot2_expected[[2, 2]] - rot2[[2, 2]]).abs() < 1e-8,
+            "Difference between rot2_expected[2,2] ({}) and rot2[2,2] ({}) is too large: {}.",
+            rot2_expected[[2, 2]],
+            rot2[[2, 2]],
+            (rot2_expected[[2, 2]] - rot2[[2, 2]]).abs()
+        );
+
+        let ea2 = euler_angles_from_rotation_matrix(rot2.clone());
+        let rot3 = euler_angles_to_rotation_matrix(ea2).unwrap();
+
+        assert!(
+            (rot2_expected[[0, 0]] - rot3[[0, 0]]).abs() < 1e-8,
+            "Difference between rot2_expected[0,0] ({}) and rot3[0,0] ({}) is too large: {}.",
+            rot2_expected[[0, 0]],
+            rot3[[0, 0]],
+            (rot2_expected[[0, 0]] - rot3[[0, 0]]).abs()
+        );
+        assert!(
+            (rot2_expected[[0, 1]] - rot3[[0, 1]]).abs() < 1e-8,
+            "Difference between rot2_expected[0,1] ({}) and rot3[0,1] ({}) is too large: {}.",
+            rot2_expected[[0, 1]],
+            rot3[[0, 1]],
+            (rot2_expected[[0, 1]] - rot3[[0, 1]]).abs()
+        );
+        assert!(
+            (rot2_expected[[0, 2]] - rot3[[0, 2]]).abs() < 1e-8,
+            "Difference between rot2_expected[0,2] ({}) and rot3[0,2] ({}) is too large: {}.",
+            rot2_expected[[0, 2]],
+            rot3[[0, 2]],
+            (rot2_expected[[0, 2]] - rot3[[0, 2]]).abs()
+        );
+        assert!(
+            (rot2_expected[[1, 0]] - rot3[[1, 0]]).abs() < 1e-8,
+            "Difference between rot2_expected[1,0] ({}) and rot3[1,0] ({}) is too large: {}.",
+            rot2_expected[[1, 0]],
+            rot3[[1, 0]],
+            (rot2_expected[[1, 0]] - rot3[[1, 0]]).abs()
+        );
+        assert!(
+            (rot2_expected[[1, 1]] - rot3[[1, 1]]).abs() < 1e-8,
+            "Difference between rot2_expected[1,1] ({}) and rot3[1,1] ({}) is too large: {}.",
+            rot2_expected[[1, 1]],
+            rot3[[1, 1]],
+            (rot2_expected[[1, 1]] - rot3[[1, 1]]).abs()
+        );
+        assert!(
+            (rot2_expected[[1, 2]] - rot3[[1, 2]]).abs() < 1e-8,
+            "Difference between rot2_expected[1,2] ({}) and rot3[1,2] ({}) is too large: {}.",
+            rot2_expected[[1, 2]],
+            rot3[[1, 2]],
+            (rot2_expected[[1, 2]] - rot3[[1, 2]]).abs()
+        );
+        assert!(
+            (rot2_expected[[2, 0]] - rot3[[2, 0]]).abs() < 1e-8,
+            "Difference between rot2_expected[2,0] ({}) and rot3[2,0] ({}) is too large: {}.",
+            rot2_expected[[2, 0]],
+            rot3[[2, 0]],
+            (rot2_expected[[2, 0]] - rot3[[2, 0]]).abs()
+        );
+        assert!(
+            (rot2_expected[[2, 1]] - rot3[[2, 1]]).abs() < 1e-8,
+            "Difference between rot2_expected[2,1] ({}) and rot3[2,1] ({}) is too large: {}.",
+            rot2_expected[[2, 1]],
+            rot3[[2, 1]],
+            (rot2_expected[[2, 1]] - rot3[[2, 1]]).abs()
+        );
+        assert!(
+            (rot2_expected[[2, 2]] - rot3[[2, 2]]).abs() < 1e-8,
+            "Difference between rot2_expected[2,2] ({}) and rot3[2,2] ({}) is too large: {}.",
+            rot2_expected[[2, 2]],
+            rot3[[2, 2]],
+            (rot2_expected[[2, 2]] - rot3[[2, 2]]).abs()
+        );
+    }
 }
