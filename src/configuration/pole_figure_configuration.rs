@@ -2,7 +2,7 @@ use crate::pole_figures::{crystal_axis::CrystalAxes, minerals::Mineral};
 
 use serde_derive::Deserialize;
 /// The configuration of the pole figure analysis.
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct PoleFiguresConfiguration {
     /// Optional value whether to inluce elasticity information in the header of the polefigure.
     /// Default is true.

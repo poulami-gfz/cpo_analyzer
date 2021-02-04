@@ -184,11 +184,6 @@ pub fn load_configuration_file(config_file: PathBuf) -> Result<Config, toml::de:
 /// ```
 pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::Error>> {
     let before = Instant::now();
-    let elastisity_header = config.pole_figures.elastisity_header.unwrap_or(true);
-    println!(
-        "particle ids size {}",
-        config.pole_figures.particle_ids.len()
-    );
 
     let base_dir = config.base_dir.clone();
 
@@ -239,440 +234,450 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
                 None => assert!(false, "Time not found"),
             }
         }
+        if config.pole_figures.is_some() {
+            let pole_figure_configuration = config.pole_figures.as_ref().unwrap();
+            let elastisity_header = pole_figure_configuration.elastisity_header.unwrap_or(true);
 
-        for output_time in &config.pole_figures.times {
-            // find closest value in timestep_to_time
-            // assume it always starts a zero
-            let after_time = timestep_to_time.iter().position(|x| x > &output_time);
+            for output_time in &pole_figure_configuration.times {
+                // find closest value in timestep_to_time
+                // assume it always starts a zero
+                let after_time = timestep_to_time.iter().position(|x| x > &output_time);
 
-            let after_timestep = match after_time {
-                Some(timestep) => timestep,
-                None => timestep_to_time.len() - 1,
-            };
+                let after_timestep = match after_time {
+                    Some(timestep) => timestep,
+                    None => timestep_to_time.len() - 1,
+                };
 
-            // todo: oneline
-            let mut before_timestep = after_timestep;
-            if after_timestep > 0 {
-                before_timestep = after_timestep - 1
-            }
+                // todo: oneline
+                let mut before_timestep = after_timestep;
+                if after_timestep > 0 {
+                    before_timestep = after_timestep - 1
+                }
 
-            // check wheter before_timestep or after_timestep is closer to output_time,
-            // then use that one.
-            let before_timestep_diff = (output_time - timestep_to_time[before_timestep]).abs();
-            let after_timestep_diff = (output_time - timestep_to_time[after_timestep]).abs();
+                // check wheter before_timestep or after_timestep is closer to output_time,
+                // then use that one.
+                let before_timestep_diff = (output_time - timestep_to_time[before_timestep]).abs();
+                let after_timestep_diff = (output_time - timestep_to_time[after_timestep]).abs();
 
-            let time_step = if before_timestep_diff < after_timestep_diff {
-                before_timestep as u64
-            } else {
-                after_timestep as u64
-            };
+                let time_step = if before_timestep_diff < after_timestep_diff {
+                    before_timestep as u64
+                } else {
+                    after_timestep as u64
+                };
 
-            let time = timestep_to_time[time_step as usize];
+                let time = timestep_to_time[time_step as usize];
 
-            println!(
-                "info: {}, {},-- {}, {}, -- time_step = {}, time = {}",
-                before_timestep,
-                after_timestep,
-                timestep_to_time[before_timestep],
-                timestep_to_time[after_timestep],
-                time_step,
-                time
-            );
+                println!(
+                    "info: {}, {},-- {}, {}, -- time_step = {}, time = {}",
+                    before_timestep,
+                    after_timestep,
+                    timestep_to_time[before_timestep],
+                    timestep_to_time[after_timestep],
+                    time_step,
+                    time
+                );
 
-            fs::create_dir_all(lpo_dir.to_owned() + "particle_LPO_figures").unwrap();
+                fs::create_dir_all(lpo_dir.to_owned() + "particle_LPO_figures").unwrap();
 
-            let file_prefix = "particle_LPO/weighted_LPO";
-            let file_prefix_figures = "particle_LPO_figures/weighted_LPO";
-            //let file_prefix = "particle_LPO/LPO";
-            let file_particle_prefix = "particle_LPO/particles";
-            let mut rank_id = 0;
-            println!(
-                "particle ids size {}",
-                config.pole_figures.particle_ids.len()
-            );
+                let file_prefix = "particle_LPO/weighted_LPO";
+                let file_prefix_figures = "particle_LPO_figures/weighted_LPO";
+                //let file_prefix = "particle_LPO/LPO";
+                let file_particle_prefix = "particle_LPO/particles";
+                let mut rank_id = 0;
 
-            let gam = 1.0; //0.5; // exponent for power-law normalization of color-scale
-                           //let f = 1.05; // factor to make plot limits slightly bigger than the circle
+                let gam = 1.0; //0.5; // exponent for power-law normalization of color-scale
+                               //let f = 1.05; // factor to make plot limits slightly bigger than the circle
 
-            let sphere_points = 301; //76;//151;
+                let sphere_points = 301; //76;//151;
 
-            let color_gradient_selection = "batlow";
+                let color_gradient_selection = "batlow";
 
-            let max_count_method = "full"; //"full";//"divide 2 and round down";
+                let max_count_method = "full"; //"full";//"divide 2 and round down";
 
-            for particle_id in &config.pole_figures.particle_ids {
-                println!("processing particle_id {}", particle_id);
-                let mut particle_olivine_a_axis_vectors = Vec::new();
-                let mut particle_olivine_b_axis_vectors = Vec::new();
-                let mut particle_olivine_c_axis_vectors = Vec::new();
-                let mut particle_enstatite_a_axis_vectors = Vec::new();
-                let mut particle_enstatite_b_axis_vectors = Vec::new();
-                let mut particle_enstatite_c_axis_vectors = Vec::new();
+                println!(
+                    "particle ids size {}",
+                    pole_figure_configuration.particle_ids.len()
+                );
+                for particle_id in &pole_figure_configuration.particle_ids {
+                    println!("processing particle_id {}", particle_id);
+                    let mut particle_olivine_a_axis_vectors = Vec::new();
+                    let mut particle_olivine_b_axis_vectors = Vec::new();
+                    let mut particle_olivine_c_axis_vectors = Vec::new();
+                    let mut particle_enstatite_a_axis_vectors = Vec::new();
+                    let mut particle_enstatite_b_axis_vectors = Vec::new();
+                    let mut particle_enstatite_c_axis_vectors = Vec::new();
 
-                let mut file_found: bool = false;
-                while !file_found {
-                    let angles_file = format!(
-                        "{}{}-{:05}.{:04}.dat",
-                        lpo_dir, file_prefix, time_step, rank_id
-                    );
-                    let angles_file = Path::new(&angles_file);
-
-                    let mut config_mineral_string = String::new();
-                    for mineral in config.pole_figures.minerals.clone() {
-                        config_mineral_string = format!(
-                            "{}{}",
-                            config_mineral_string.clone(),
-                            match mineral {
-                                Mineral::Olivine => {
-                                    "oli_"
-                                }
-                                Mineral::Enstatite => {
-                                    "ens_"
-                                }
-                            }
-                        )
-                    }
-                    let mut config_axis_string = String::new();
-                    for axis in config.pole_figures.axes.clone() {
-                        config_axis_string = format!(
-                            "{}{}",
-                            config_axis_string.clone(),
-                            match axis {
-                                CrystalAxes::AAxis => {
-                                    "A-"
-                                }
-                                CrystalAxes::BAxis => {
-                                    "B-"
-                                }
-                                CrystalAxes::CAxis => {
-                                    "C-"
-                                }
-                            }
-                        )
-                    }
-                    config_axis_string = format!("{}Axis_", config_axis_string.clone());
-
-                    let output_file = format!(
-                        "{}{}_{}{}{}{}_g{}_sp{}_mc{}_t{:05}.{:05}_km100.png",
-                        lpo_dir,
-                        file_prefix_figures,
-                        if elastisity_header {
-                            "elastic_"
-                        } else {
-                            "no-elastic_"
-                        },
-                        config_mineral_string,
-                        config_axis_string,
-                        color_gradient_selection,
-                        gam,
-                        sphere_points,
-                        match max_count_method {
-                            "divide 2" => "dv2",
-                            "divide 3" => "dv3",
-                            "divide 4" => "dv4",
-                            _ => "full",
-                        },
-                        time_step,
-                        particle_id
-                    );
-                    let output_file = Path::new(&output_file);
-                    let particle_file = format!(
-                        "{}{}-{:05}.{:04}.dat",
-                        lpo_dir, file_particle_prefix, time_step, rank_id
-                    );
-                    let particle_info_file = Path::new(&particle_file);
-
-                    println!("  trying file name: {}", angles_file.display());
-
-                    // check wheter file exists, if not it means that is reached the max rank, so stop.
-                    if !(fs::metadata(angles_file).is_ok()) {
-                        println!(
-                            "particle id {} not found for timestep {}.",
-                            particle_id, time_step
+                    let mut file_found: bool = false;
+                    while !file_found {
+                        let angles_file = format!(
+                            "{}{}-{:05}.{:04}.dat",
+                            lpo_dir, file_prefix, time_step, rank_id
                         );
-                        break;
-                    }
+                        let angles_file = Path::new(&angles_file);
 
-                    // check wheter file is empty, if not continue to next rank
-                    if fs::metadata(angles_file).unwrap().len() == 0 {
-                        rank_id = rank_id + 1;
-                        continue;
-                    }
-
-                    println!("  file:{}", angles_file.display());
-                    let file = File::open(angles_file).unwrap();
-                    let metadata = file.metadata().unwrap();
-
-                    let mut buf_reader = BufReader::with_capacity(metadata.len() as usize, file);
-
-                    let mut decoded_data = Vec::new();
-
-                    let compressed = config.compressed;
-
-                    let decoded_reader = if compressed {
-                        let mut decoder = libflate::zlib::Decoder::new(buf_reader).unwrap();
-                        decoder.read_to_end(&mut decoded_data).unwrap();
-                        String::from_utf8_lossy(&decoded_data)
-                    } else {
-                        let data = buf_reader.fill_buf().unwrap();
-                        String::from_utf8_lossy(&data)
-                    };
-
-                    let mut rdr = csv::ReaderBuilder::new()
-                        .has_headers(true)
-                        .delimiter(b' ')
-                        .from_reader(decoded_reader.as_bytes());
-
-                    let mut integer = 0;
-                    for result in rdr.deserialize() {
-                        let record: Record = result.unwrap();
-                        if record.id == *particle_id {
-                            let deg_to_rad = std::f64::consts::PI / 180.;
-
-                            // olivine
-                            let euler_angles = Array::from(vec![
-                                record.mineral_0_EA_phi.unwrap() * deg_to_rad,
-                                record.mineral_0_EA_theta.unwrap() * deg_to_rad,
-                                record.mineral_0_EA_z.unwrap() * deg_to_rad,
-                            ]);
-                            let rotation_matrix =
-                                euler_angles_to_rotation_matrix(euler_angles).unwrap();
-
-                            particle_olivine_a_axis_vectors.push(rotation_matrix.row(0).to_owned());
-                            particle_olivine_b_axis_vectors.push(rotation_matrix.row(1).to_owned());
-                            particle_olivine_c_axis_vectors.push(rotation_matrix.row(2).to_owned());
-
-                            // enstatite
-                            let euler_angles = Array::from(vec![
-                                record.mineral_1_EA_phi.unwrap() * deg_to_rad,
-                                record.mineral_1_EA_theta.unwrap() * deg_to_rad,
-                                record.mineral_1_EA_z.unwrap() * deg_to_rad,
-                            ]);
-                            let rotation_matrix =
-                                euler_angles_to_rotation_matrix(euler_angles).unwrap();
-
-                            particle_enstatite_a_axis_vectors
-                                .push(rotation_matrix.row(0).to_owned());
-                            particle_enstatite_b_axis_vectors
-                                .push(rotation_matrix.row(1).to_owned());
-                            particle_enstatite_c_axis_vectors
-                                .push(rotation_matrix.row(2).to_owned());
-                        }
-                        integer = integer + 1;
-                    }
-
-                    // check if the particle id was found in this file, otherwise continue
-                    if particle_olivine_a_axis_vectors.len() == 0 {
-                        rank_id = rank_id + 1;
-                        continue;
-                    }
-                    file_found = true;
-
-                    // retrieve anisotropy info
-                    let mut particle_record = ParticleRecord {
-                        id: 0,
-                        x: 0.0,
-                        y: 0.0,
-                        z: Some(0.0),
-                        olivine_deformation_type: 0.0,
-                        full_norm_square: None,
-                        triclinic_norm_square_p1: None,
-                        triclinic_norm_square_p2: None,
-                        triclinic_norm_square_p3: None,
-                        monoclinic_norm_square_p1: None,
-                        monoclinic_norm_square_p2: None,
-                        monoclinic_norm_square_p3: None,
-                        orthohombic_norm_square_p1: None,
-                        orthohombic_norm_square_p2: None,
-                        orthohombic_norm_square_p3: None,
-                        tetragonal_norm_square_p1: None,
-                        tetragonal_norm_square_p2: None,
-                        tetragonal_norm_square_p3: None,
-                        hexagonal_norm_square_p1: None,
-                        hexagonal_norm_square_p2: None,
-                        hexagonal_norm_square_p3: None,
-                        isotropic_norm_square: None,
-                    };
-
-                    let particle_info_file = File::open(particle_info_file).unwrap();
-                    let buf_reader = BufReader::new(particle_info_file);
-
-                    let mut rdr = csv::ReaderBuilder::new()
-                        .has_headers(true)
-                        .delimiter(b' ')
-                        .from_reader(buf_reader);
-
-                    for result in rdr.deserialize() {
-                        // We must tell Serde what type we want to deserialize into.
-                        let record: ParticleRecord = result.unwrap();
-                        if record.id == *particle_id {
-                            particle_record = record;
-                        }
-                    }
-                    // end retrieve anisotropy info
-                    println!("end retrieve antisotropy info");
-                    println!("create lambert equal area gridpoint");
-
-                    let lambert =
-                        create_lambert_equal_area_gridpoint(sphere_points, "upper".to_string())
-                            .unwrap();
-
-                    println!("create sphere_point_grid");
-                    let mut sphere_point_grid = Array2::zeros((3, sphere_points * sphere_points));
-
-                    for i in 0..sphere_points {
-                        for j in 0..sphere_points {
-                            sphere_point_grid[[0, i * sphere_points + j]] = lambert.x[[i, j]];
-                            sphere_point_grid[[1, i * sphere_points + j]] = lambert.y[[i, j]];
-                            sphere_point_grid[[2, i * sphere_points + j]] = lambert.z[[i, j]];
-                        }
-                    }
-
-                    println!("fill olivine array");
-
-                    let n_grains = particle_olivine_a_axis_vectors.len();
-
-                    let mut pole_figure_grid: Vec<Vec<PoleFigure>> =
-                        vec![
-                            vec![
-                                PoleFigure {
-                                    crystal_axis: CrystalAxes::AAxis,
-                                    mineral: Mineral::Olivine,
-                                    counts: Array2::zeros((n_grains, 3)),
-                                    max_count: 0.0,
-                                };
-                                config.pole_figures.minerals.len()
-                            ];
-                            config.pole_figures.axes.len()
-                        ];
-
-                    let mut figure_horizontal_axis = 0;
-                    for axis in config.pole_figures.axes.clone() {
-                        let mut figure_vertical_axis = 0;
-                        for mineral in config.pole_figures.minerals.clone() {
-                            println!(
-                                "figure_horizontal_axis:figure_vertical_axis = {}:{}",
-                                figure_horizontal_axis, figure_vertical_axis
-                            );
-
-                            let mut particle_arrays = Array2::zeros((n_grains, 3));
-                            for i in 0..n_grains {
-                                for j in 0..3 {
-                                    particle_arrays[[i, j]] = match axis {
-                                        CrystalAxes::AAxis => match mineral {
-                                            Mineral::Olivine => {
-                                                particle_olivine_a_axis_vectors[i][j]
-                                            }
-                                            Mineral::Enstatite => {
-                                                particle_enstatite_a_axis_vectors[i][j]
-                                            }
-                                        },
-                                        CrystalAxes::BAxis => match mineral {
-                                            Mineral::Olivine => {
-                                                particle_olivine_b_axis_vectors[i][j]
-                                            }
-                                            Mineral::Enstatite => {
-                                                particle_enstatite_b_axis_vectors[i][j]
-                                            }
-                                        },
-                                        CrystalAxes::CAxis => match mineral {
-                                            Mineral::Olivine => {
-                                                particle_olivine_c_axis_vectors[i][j]
-                                            }
-                                            Mineral::Enstatite => {
-                                                particle_enstatite_c_axis_vectors[i][j]
-                                            }
-                                        },
-                                    };
-                                }
-                            }
-                            let counts = gaussian_orientation_counts(
-                                &particle_arrays,
-                                &sphere_point_grid,
-                                sphere_points,
-                            )
-                            .unwrap();
-
-                            let mut max_count_value = 0.0;
-
-                            for i in 0..counts.shape()[0] - 1 {
-                                for j in 0..counts.shape()[1] - 1 {
-                                    if counts[[i, j]] > max_count_value {
-                                        max_count_value = counts[[i, j]];
+                        let mut config_mineral_string = String::new();
+                        for mineral in pole_figure_configuration.minerals.clone() {
+                            config_mineral_string = format!(
+                                "{}{}",
+                                config_mineral_string.clone(),
+                                match mineral {
+                                    Mineral::Olivine => {
+                                        "oli_"
+                                    }
+                                    Mineral::Enstatite => {
+                                        "ens_"
                                     }
                                 }
-                            }
-                            println!(
-                                "counts shape = {:?}, max value = {}",
-                                counts.shape(),
-                                max_count_value
-                            );
+                            )
+                        }
+                        let mut config_axis_string = String::new();
+                        for axis in pole_figure_configuration.axes.clone() {
+                            config_axis_string = format!(
+                                "{}{}",
+                                config_axis_string.clone(),
+                                match axis {
+                                    CrystalAxes::AAxis => {
+                                        "A-"
+                                    }
+                                    CrystalAxes::BAxis => {
+                                        "B-"
+                                    }
+                                    CrystalAxes::CAxis => {
+                                        "C-"
+                                    }
+                                }
+                            )
+                        }
+                        config_axis_string = format!("{}Axis_", config_axis_string.clone());
 
-                            pole_figure_grid[figure_horizontal_axis][figure_vertical_axis] =
-                                PoleFigure {
-                                    crystal_axis: axis.clone(),
-                                    mineral: mineral.clone(),
-                                    counts: counts,
-                                    max_count: max_count_value,
-                                };
+                        let output_file = format!(
+                            "{}{}_{}{}{}{}_g{}_sp{}_mc{}_t{:05}.{:05}_km100.png",
+                            lpo_dir,
+                            file_prefix_figures,
+                            if elastisity_header {
+                                "elastic_"
+                            } else {
+                                "no-elastic_"
+                            },
+                            config_mineral_string,
+                            config_axis_string,
+                            color_gradient_selection,
+                            gam,
+                            sphere_points,
+                            match max_count_method {
+                                "divide 2" => "dv2",
+                                "divide 3" => "dv3",
+                                "divide 4" => "dv4",
+                                _ => "full",
+                            },
+                            time_step,
+                            particle_id
+                        );
+                        let output_file = Path::new(&output_file);
+                        let particle_file = format!(
+                            "{}{}-{:05}.{:04}.dat",
+                            lpo_dir, file_particle_prefix, time_step, rank_id
+                        );
+                        let particle_info_file = Path::new(&particle_file);
+
+                        println!("  trying file name: {}", angles_file.display());
+
+                        // check wheter file exists, if not it means that is reached the max rank, so stop.
+                        if !(fs::metadata(angles_file).is_ok()) {
+                            println!(
+                                "particle id {} not found for timestep {}.",
+                                particle_id, time_step
+                            );
+                            break;
+                        }
+
+                        // check wheter file is empty, if not continue to next rank
+                        if fs::metadata(angles_file).unwrap().len() == 0 {
+                            rank_id = rank_id + 1;
+                            continue;
+                        }
+
+                        println!("  file:{}", angles_file.display());
+                        let file = File::open(angles_file).unwrap();
+                        let metadata = file.metadata().unwrap();
+
+                        let mut buf_reader =
+                            BufReader::with_capacity(metadata.len() as usize, file);
+
+                        let mut decoded_data = Vec::new();
+
+                        let compressed = config.compressed;
+
+                        let decoded_reader = if compressed {
+                            let mut decoder = libflate::zlib::Decoder::new(buf_reader).unwrap();
+                            decoder.read_to_end(&mut decoded_data).unwrap();
+                            String::from_utf8_lossy(&decoded_data)
+                        } else {
+                            let data = buf_reader.fill_buf().unwrap();
+                            String::from_utf8_lossy(&data)
+                        };
+
+                        let mut rdr = csv::ReaderBuilder::new()
+                            .has_headers(true)
+                            .delimiter(b' ')
+                            .from_reader(decoded_reader.as_bytes());
+
+                        let mut integer = 0;
+                        for result in rdr.deserialize() {
+                            let record: Record = result.unwrap();
+                            if record.id == *particle_id {
+                                let deg_to_rad = std::f64::consts::PI / 180.;
+
+                                // olivine
+                                let euler_angles = Array::from(vec![
+                                    record.mineral_0_EA_phi.unwrap() * deg_to_rad,
+                                    record.mineral_0_EA_theta.unwrap() * deg_to_rad,
+                                    record.mineral_0_EA_z.unwrap() * deg_to_rad,
+                                ]);
+                                let rotation_matrix =
+                                    euler_angles_to_rotation_matrix(euler_angles).unwrap();
+
+                                particle_olivine_a_axis_vectors
+                                    .push(rotation_matrix.row(0).to_owned());
+                                particle_olivine_b_axis_vectors
+                                    .push(rotation_matrix.row(1).to_owned());
+                                particle_olivine_c_axis_vectors
+                                    .push(rotation_matrix.row(2).to_owned());
+
+                                // enstatite
+                                let euler_angles = Array::from(vec![
+                                    record.mineral_1_EA_phi.unwrap() * deg_to_rad,
+                                    record.mineral_1_EA_theta.unwrap() * deg_to_rad,
+                                    record.mineral_1_EA_z.unwrap() * deg_to_rad,
+                                ]);
+                                let rotation_matrix =
+                                    euler_angles_to_rotation_matrix(euler_angles).unwrap();
+
+                                particle_enstatite_a_axis_vectors
+                                    .push(rotation_matrix.row(0).to_owned());
+                                particle_enstatite_b_axis_vectors
+                                    .push(rotation_matrix.row(1).to_owned());
+                                particle_enstatite_c_axis_vectors
+                                    .push(rotation_matrix.row(2).to_owned());
+                            }
+                            integer = integer + 1;
+                        }
+
+                        // check if the particle id was found in this file, otherwise continue
+                        if particle_olivine_a_axis_vectors.len() == 0 {
+                            rank_id = rank_id + 1;
+                            continue;
+                        }
+                        file_found = true;
+
+                        // retrieve anisotropy info
+                        let mut particle_record = ParticleRecord {
+                            id: 0,
+                            x: 0.0,
+                            y: 0.0,
+                            z: Some(0.0),
+                            olivine_deformation_type: 0.0,
+                            full_norm_square: None,
+                            triclinic_norm_square_p1: None,
+                            triclinic_norm_square_p2: None,
+                            triclinic_norm_square_p3: None,
+                            monoclinic_norm_square_p1: None,
+                            monoclinic_norm_square_p2: None,
+                            monoclinic_norm_square_p3: None,
+                            orthohombic_norm_square_p1: None,
+                            orthohombic_norm_square_p2: None,
+                            orthohombic_norm_square_p3: None,
+                            tetragonal_norm_square_p1: None,
+                            tetragonal_norm_square_p2: None,
+                            tetragonal_norm_square_p3: None,
+                            hexagonal_norm_square_p1: None,
+                            hexagonal_norm_square_p2: None,
+                            hexagonal_norm_square_p3: None,
+                            isotropic_norm_square: None,
+                        };
+
+                        let particle_info_file = File::open(particle_info_file).unwrap();
+                        let buf_reader = BufReader::new(particle_info_file);
+
+                        let mut rdr = csv::ReaderBuilder::new()
+                            .has_headers(true)
+                            .delimiter(b' ')
+                            .from_reader(buf_reader);
+
+                        for result in rdr.deserialize() {
+                            // We must tell Serde what type we want to deserialize into.
+                            let record: ParticleRecord = result.unwrap();
+                            if record.id == *particle_id {
+                                particle_record = record;
+                            }
+                        }
+                        // end retrieve anisotropy info
+                        println!("end retrieve antisotropy info");
+                        println!("create lambert equal area gridpoint");
+
+                        let lambert =
+                            create_lambert_equal_area_gridpoint(sphere_points, "upper".to_string())
+                                .unwrap();
+
+                        println!("create sphere_point_grid");
+                        let mut sphere_point_grid =
+                            Array2::zeros((3, sphere_points * sphere_points));
+
+                        for i in 0..sphere_points {
+                            for j in 0..sphere_points {
+                                sphere_point_grid[[0, i * sphere_points + j]] = lambert.x[[i, j]];
+                                sphere_point_grid[[1, i * sphere_points + j]] = lambert.y[[i, j]];
+                                sphere_point_grid[[2, i * sphere_points + j]] = lambert.z[[i, j]];
+                            }
+                        }
+
+                        println!("fill olivine array");
+
+                        let n_grains = particle_olivine_a_axis_vectors.len();
+
+                        let mut pole_figure_grid: Vec<Vec<PoleFigure>> = vec![
+                                vec![
+                                    PoleFigure {
+                                        crystal_axis: CrystalAxes::AAxis,
+                                        mineral: Mineral::Olivine,
+                                        counts: Array2::zeros((n_grains, 3)),
+                                        max_count: 0.0,
+                                    };
+                                    pole_figure_configuration.minerals.len()
+                                ];
+                                pole_figure_configuration.axes.len()
+                            ];
+
+                        let mut figure_horizontal_axis = 0;
+                        for axis in pole_figure_configuration.axes.clone() {
+                            let mut figure_vertical_axis = 0;
+                            for mineral in pole_figure_configuration.minerals.clone() {
+                                println!(
+                                    "figure_horizontal_axis:figure_vertical_axis = {}:{}",
+                                    figure_horizontal_axis, figure_vertical_axis
+                                );
+
+                                let mut particle_arrays = Array2::zeros((n_grains, 3));
+                                for i in 0..n_grains {
+                                    for j in 0..3 {
+                                        particle_arrays[[i, j]] = match axis {
+                                            CrystalAxes::AAxis => match mineral {
+                                                Mineral::Olivine => {
+                                                    particle_olivine_a_axis_vectors[i][j]
+                                                }
+                                                Mineral::Enstatite => {
+                                                    particle_enstatite_a_axis_vectors[i][j]
+                                                }
+                                            },
+                                            CrystalAxes::BAxis => match mineral {
+                                                Mineral::Olivine => {
+                                                    particle_olivine_b_axis_vectors[i][j]
+                                                }
+                                                Mineral::Enstatite => {
+                                                    particle_enstatite_b_axis_vectors[i][j]
+                                                }
+                                            },
+                                            CrystalAxes::CAxis => match mineral {
+                                                Mineral::Olivine => {
+                                                    particle_olivine_c_axis_vectors[i][j]
+                                                }
+                                                Mineral::Enstatite => {
+                                                    particle_enstatite_c_axis_vectors[i][j]
+                                                }
+                                            },
+                                        };
+                                    }
+                                }
+                                let counts = gaussian_orientation_counts(
+                                    &particle_arrays,
+                                    &sphere_point_grid,
+                                    sphere_points,
+                                )
+                                .unwrap();
+
+                                let mut max_count_value = 0.0;
+
+                                for i in 0..counts.shape()[0] - 1 {
+                                    for j in 0..counts.shape()[1] - 1 {
+                                        if counts[[i, j]] > max_count_value {
+                                            max_count_value = counts[[i, j]];
+                                        }
+                                    }
+                                }
+                                println!(
+                                    "counts shape = {:?}, max value = {}",
+                                    counts.shape(),
+                                    max_count_value
+                                );
+
+                                pole_figure_grid[figure_horizontal_axis][figure_vertical_axis] =
+                                    PoleFigure {
+                                        crystal_axis: axis.clone(),
+                                        mineral: mineral.clone(),
+                                        counts: counts,
+                                        max_count: max_count_value,
+                                    };
+                                figure_vertical_axis += 1;
+                            }
+                            figure_horizontal_axis += 1;
+                        }
+
+                        // set all horizontal max values to the max of the horizontal max max values
+                        let mut figure_vertical_axis = 0;
+                        for _mineral in pole_figure_configuration.minerals.clone() {
+                            let mut max_count_value = 0.0;
+
+                            // loop to find the max value
+                            let mut figure_horizontal_axis = 0;
+                            for _axis in pole_figure_configuration.axes.clone() {
+                                if pole_figure_grid[figure_horizontal_axis][figure_vertical_axis]
+                                    .max_count
+                                    > max_count_value
+                                {
+                                    max_count_value = pole_figure_grid[figure_horizontal_axis]
+                                        [figure_vertical_axis]
+                                        .max_count;
+                                }
+                                figure_horizontal_axis += 1;
+                            }
+
+                            // loop to write max value
+                            figure_horizontal_axis = 0;
+                            for _axis in pole_figure_configuration.axes.clone() {
+                                pole_figure_grid[figure_horizontal_axis][figure_vertical_axis]
+                                    .max_count = max_count_value;
+                                figure_horizontal_axis += 1;
+                            }
                             figure_vertical_axis += 1;
                         }
-                        figure_horizontal_axis += 1;
+
+                        make_pole_figures(
+                            pole_figure_configuration.small_figure.unwrap_or(false),
+                            pole_figure_configuration
+                                .no_description_text
+                                .unwrap_or(false),
+                            elastisity_header,
+                            n_grains,
+                            &time_step,
+                            0,
+                            &pole_figure_grid,
+                            &lambert,
+                            output_file,
+                            &particle_record,
+                            time,
+                            gam,
+                            color_gradient_selection.to_string(),
+                            max_count_method.to_string(),
+                        )
+                        .unwrap();
+
+                        println!(
+                            "  After make_polefigures: Elapsed time: {:.2?}",
+                            before.elapsed()
+                        );
                     }
-
-                    // set all horizontal max values to the max of the horizontal max max values
-                    let mut figure_vertical_axis = 0;
-                    for _mineral in config.pole_figures.minerals.clone() {
-                        let mut max_count_value = 0.0;
-
-                        // loop to find the max value
-                        let mut figure_horizontal_axis = 0;
-                        for _axis in config.pole_figures.axes.clone() {
-                            if pole_figure_grid[figure_horizontal_axis][figure_vertical_axis]
-                                .max_count
-                                > max_count_value
-                            {
-                                max_count_value = pole_figure_grid[figure_horizontal_axis]
-                                    [figure_vertical_axis]
-                                    .max_count;
-                            }
-                            figure_horizontal_axis += 1;
-                        }
-
-                        // loop to write max value
-                        figure_horizontal_axis = 0;
-                        for _axis in config.pole_figures.axes.clone() {
-                            pole_figure_grid[figure_horizontal_axis][figure_vertical_axis]
-                                .max_count = max_count_value;
-                            figure_horizontal_axis += 1;
-                        }
-                        figure_vertical_axis += 1;
-                    }
-
-                    make_pole_figures(
-                        config.pole_figures.small_figure.unwrap_or(false),
-                        config.pole_figures.no_description_text.unwrap_or(false),
-                        elastisity_header,
-                        n_grains,
-                        &time_step,
-                        0,
-                        &pole_figure_grid,
-                        &lambert,
-                        output_file,
-                        &particle_record,
-                        time,
-                        gam,
-                        color_gradient_selection.to_string(),
-                        max_count_method.to_string(),
-                    )
-                    .unwrap();
-
-                    println!(
-                        "  After make_polefigures: Elapsed time: {:.2?}",
-                        before.elapsed()
-                    );
+                    println!("go to next id");
                 }
-                println!("go to next id");
             }
         }
     });

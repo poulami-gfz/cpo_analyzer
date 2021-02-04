@@ -8,7 +8,7 @@ pub struct Config {
     /// A vector containing the directories which contains the data and where results are written to.
     pub experiment_dirs: Vec<String>,
     /// Pole figure configuration options.
-    pub pole_figures: PoleFiguresConfiguration,
+    pub pole_figures: Option<PoleFiguresConfiguration>,
     /// Whether the CPO data has been compressed.
     pub compressed: bool,
 }
