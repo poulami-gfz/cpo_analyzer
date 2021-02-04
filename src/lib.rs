@@ -78,7 +78,7 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::time::Instant;
 
-/// Entry point for the commandline agrument version of the program. The location of the configuration file is taken
+/// Entry point for the commandline agrument/binary version of the program. The location of the configuration file is taken
 /// from those commandline arguments, and passed on to the `process` function.
 ///
 /// # Example: CPO analyzer main function
