@@ -195,7 +195,12 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
         let lpo_dir = base_dir.clone() + &experiment_dir;
 
         // get a vector with the time for all the timesteps
-        let statistics_file = lpo_dir.to_owned() + "statistics";
+        println!(
+            "file = {}",
+            &config.pole_figures.as_ref().unwrap().time_data_file
+        );
+        let statistics_file =
+            lpo_dir.to_owned() + &config.pole_figures.as_ref().unwrap().time_data_file;
 
         println!("  file:{}", statistics_file);
         let file = File::open(statistics_file).unwrap();
@@ -278,11 +283,13 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
                     time
                 );
 
-                fs::create_dir_all(lpo_dir.to_owned() + "particle_LPO_figures").unwrap();
+                fs::create_dir_all(
+                    lpo_dir.to_owned() + &pole_figure_configuration.figure_output_dir,
+                )
+                .unwrap();
 
-                let file_prefix = "particle_LPO/weighted_LPO";
-                let file_prefix_figures = "particle_LPO_figures/weighted_LPO";
-                let file_particle_prefix = "particle_LPO/particles";
+                let file_prefix_figures = pole_figure_configuration.figure_output_dir.to_owned()
+                    + &pole_figure_configuration.figure_output_prefix;
                 let mut rank_id = 0;
 
                 let gam = 1.0; //0.5; // exponent for power-law normalization of color-scale
@@ -311,7 +318,10 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
                     while !file_found {
                         let angles_file = format!(
                             "{}{}-{:05}.{:04}.dat",
-                            lpo_dir, file_prefix, time_step, rank_id
+                            lpo_dir,
+                            pole_figure_configuration.grain_data_file_prefix,
+                            time_step,
+                            rank_id
                         );
                         let angles_file = Path::new(&angles_file);
 
@@ -376,7 +386,10 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
                         let output_file = Path::new(&output_file);
                         let particle_file = format!(
                             "{}{}-{:05}.{:04}.dat",
-                            lpo_dir, file_particle_prefix, time_step, rank_id
+                            lpo_dir,
+                            pole_figure_configuration.particle_data_file_prefix,
+                            time_step,
+                            rank_id
                         );
                         let particle_info_file = Path::new(&particle_file);
 
@@ -425,6 +438,7 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
                         let mut integer = 0;
                         for result in rdr.deserialize() {
                             let record: Record = result.unwrap();
+                            println!("record from file = {:?}", record);
                             if record.id == *particle_id {
                                 let deg_to_rad = std::f64::consts::PI / 180.;
 
@@ -476,7 +490,7 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
                             x: 0.0,
                             y: 0.0,
                             z: Some(0.0),
-                            olivine_deformation_type: 0.0,
+                            olivine_deformation_type: None,
                             full_norm_square: None,
                             triclinic_norm_square_p1: None,
                             triclinic_norm_square_p2: None,

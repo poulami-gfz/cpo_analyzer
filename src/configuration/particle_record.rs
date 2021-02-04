@@ -6,7 +6,7 @@ pub struct ParticleRecord {
     pub x: f64,
     pub y: f64,
     pub z: Option<f64>,
-    pub olivine_deformation_type: f64,
+    pub olivine_deformation_type: Option<f64>,
     pub full_norm_square: Option<f64>,
     pub triclinic_norm_square_p1: Option<f64>,
     pub triclinic_norm_square_p2: Option<f64>,

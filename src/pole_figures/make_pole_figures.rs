@@ -192,7 +192,14 @@ pub fn make_pole_figures(
 
         header
         .draw(&Text::new(
-            format!("id={},time={:.5e}, position=({:.3e}:{:.3e}:{:.3e}), ODT={:.4}, grains={}, anisotropic%={:.4}",particle_id,time,particle_record.x,particle_record.y,particle_record.z.unwrap(),particle_record.olivine_deformation_type, n_grains,((total_anisotropy)/full_norm_square)*100.),
+            format!("id={},time={:.5e}, position=({:.3e}:{:.3e}:{:.3e}), ODT={:.4}, grains={}, anisotropic%={:.4}",
+            particle_id,
+            time,
+            particle_record.x,
+            particle_record.y,
+            particle_record.z.unwrap(),
+            particle_record.olivine_deformation_type.unwrap(),
+            n_grains,((total_anisotropy)/full_norm_square)*100.),
             ((wp.calc(left_margin) ) as i32, hp.calc(top_margin) as i32),
             (font_type, font_size_header).into_font(),
         ))?;
