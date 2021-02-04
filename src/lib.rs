@@ -234,9 +234,10 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
                 None => assert!(false, "Time not found"),
             }
         }
+
         if config.pole_figures.is_some() {
             let pole_figure_configuration = config.pole_figures.as_ref().unwrap();
-            let elastisity_header = pole_figure_configuration.elastisity_header.unwrap_or(true);
+            let elastisity_header = pole_figure_configuration.elastisity_header;
 
             for output_time in &pole_figure_configuration.times {
                 // find closest value in timestep_to_time
@@ -281,7 +282,6 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
 
                 let file_prefix = "particle_LPO/weighted_LPO";
                 let file_prefix_figures = "particle_LPO_figures/weighted_LPO";
-                //let file_prefix = "particle_LPO/LPO";
                 let file_particle_prefix = "particle_LPO/particles";
                 let mut rank_id = 0;
 
@@ -652,10 +652,8 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
                         }
 
                         make_pole_figures(
-                            pole_figure_configuration.small_figure.unwrap_or(false),
-                            pole_figure_configuration
-                                .no_description_text
-                                .unwrap_or(false),
+                            pole_figure_configuration.small_figure,
+                            pole_figure_configuration.no_description_text,
                             elastisity_header,
                             n_grains,
                             &time_step,
