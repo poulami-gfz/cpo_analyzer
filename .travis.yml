@@ -1,0 +1,23 @@
+language: rust
+
+cache:
+  directories:
+    - $HOME/.cargo
+
+rust:
+    - stable
+    - nightly
+    - beta
+
+env:
+  - RUSTFLAGS="-D warnings"
+
+os:
+    - linux
+    - osx
+
+script:
+    - env
+    - cargo fmt -- --check
+    - cargo test
+    - cargo doc
