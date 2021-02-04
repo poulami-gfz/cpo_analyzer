@@ -103,7 +103,7 @@ pub fn make_pole_figures(
     let wp = Percentage {
         total: total_figure_width as f64 / number_of_figures_horizontal as f64,
     };
-    let font_size_header = if small_figure { 24 } else { 38 };
+    let font_size_header = if small_figure { 28 } else { 45 };
     let line_distance = 5.5;
     let top_margin = 0.25;
     let left_margin = 0.5;
@@ -339,7 +339,7 @@ pub fn make_pole_figures(
     println!("    start body: Elapsed time: {:.2?}", clock.elapsed());
     // do stuff in body:
 
-    let font_size_figure = if small_figure { 35 } else { 45 };
+    let font_size_figure = if small_figure { 30 } else { 50 };
     let (left, right) = body.split_horizontally(total_figure_width);
 
     let drawing_areas_horizontal = left.split_evenly((1, number_of_figures_horizontal));
@@ -501,14 +501,14 @@ pub fn make_pole_figures(
             }
             drawing_areas_vertical[vertical_figure_number].draw(&Text::new(
                 format!("Z"),
-                (wp.calc(46.4) as i32, (hp.calc(11.) - 85.) as i32),
+                (wp.calc(46.4) as i32, (hp.calc(11.) - 100.) as i32),
                 (font_type, font_size_figure).into_font(),
             ))?;
             drawing_areas_vertical[vertical_figure_number].draw(&Text::new(
                 format!("X"),
                 (
                     wp.calc(96.0) as i32,
-                    if small_figure { 250 } else { 400 } as i32,
+                    if small_figure { 235 } else { 385 } as i32,
                 ),
                 (font_type, font_size_figure).into_font(),
             ))?;
