@@ -1,6 +1,6 @@
 [package]
 name = "cpo_analyzer"
-version = "0.1.0"
+version = "0.1.0-pre"
 authors = ["Menno Fraters <menno.fraters@outlook.com>"]
 edition = "2018"
 
