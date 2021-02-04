@@ -18,7 +18,9 @@ os:
 
 script:
     - env
-    - rustup component add rustfmt
-    - cargo fmt -- --check
+    - if [ "$TRAVIS_RUST_VERSION" != "nightly" ]; then 
+        rustup component add rustfmt;
+        cargo fmt -- --check;
+      fi
     - cargo test
     - cargo doc
