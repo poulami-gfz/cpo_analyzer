@@ -94,23 +94,26 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
     let opt = Opt::from_args();
     let config_file = opt.config_file;
 
-    process(config_file)
+    let configuration =
+        load_configuration_file(config_file).expect("Could not load configuration file");
+    process_configuration(configuration)
 }
 
-/// Entry point for if the location of the config file is already know, such as the `run` function.
+/// Load configuration TOML file into an internal structure which can be used by the `process_configuration` function.
 ///
 /// # Example 1: CPO analyzer run function
 ///
 /// ```
 /// use structopt::StructOpt;
 /// use cpo_analyzer::configuration::opt::Opt;
-/// use cpo_analyzer::process;
+/// use cpo_analyzer::{load_configuration_file,process_configuration};
 ///
 /// pub fn run() -> Result<(), Box<dyn std::error::Error>> {
 ///    let opt = Opt::from_args();
 ///    let config_file = opt.config_file;
 ///
-///    process(config_file)
+///    let configuration = load_configuration_file(config_file).expect("Could not load configuration file");
+///    process_configuration(configuration)
 /// }
 /// ```
 ///
@@ -119,16 +122,16 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
 /// ```
 /// use std::path::PathBuf;
 /// use cpo_analyzer::configuration::opt::Opt;
-/// use cpo_analyzer::process;
+/// use cpo_analyzer::{load_configuration_file,process_configuration};
 ///
 /// fn run() -> Result<(), Box<dyn std::error::Error>> {
 ///    let config_file = PathBuf::from("examples/config_example.toml");
 ///
-///    process(config_file)
+///    let configuration = load_configuration_file(config_file).expect("Could not load configuration file");
+///    process_configuration(configuration)
 ///}
 /// ```
-pub fn process(config_file: PathBuf) -> Result<(), Box<dyn std::error::Error>> {
-    let before = Instant::now();
+pub fn load_configuration_file(config_file: PathBuf) -> Result<Config, toml::de::Error> {
     let config_file_display = config_file.display();
     // Open the path in read-only mode, returns `io::Result<File>`
     let mut file = match File::open(&config_file) {
@@ -144,8 +147,43 @@ pub fn process(config_file: PathBuf) -> Result<(), Box<dyn std::error::Error>> {
         Ok(_) => (),
     }
 
-    let config: Config = toml::from_str(&config_file_string).unwrap();
+    toml::from_str(&config_file_string)
+}
 
+/// Entry point for if the location of the config file is already know, such as the `run` function.
+///
+/// # Example 1: CPO analyzer run function
+///
+/// ```
+/// use structopt::StructOpt;
+/// use cpo_analyzer::configuration::opt::Opt;
+/// use cpo_analyzer::{load_configuration_file,process_configuration};
+///
+/// pub fn run() -> Result<(), Box<dyn std::error::Error>> {
+///    let opt = Opt::from_args();
+///    let config_file = opt.config_file;
+///
+///    let configuration = load_configuration_file(config_file).expect("Could not load configuration file");
+///    process_configuration(configuration)
+/// }
+/// ```
+///
+/// # Example 2: stand-alone usage
+///
+/// ```
+/// use std::path::PathBuf;
+/// use cpo_analyzer::configuration::opt::Opt;
+/// use cpo_analyzer::{load_configuration_file,process_configuration};
+///
+/// fn run() -> Result<(), Box<dyn std::error::Error>> {
+///    let config_file = PathBuf::from("examples/config_example.toml");
+///
+///    let configuration = load_configuration_file(config_file).expect("Could not load configuration file");
+///    process_configuration(configuration)
+///}
+/// ```
+pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::Error>> {
+    let before = Instant::now();
     let elastisity_header = config.pole_figures.elastisity_header.unwrap_or(true);
     println!(
         "particle ids size {}",
