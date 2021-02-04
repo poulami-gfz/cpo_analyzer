@@ -17,7 +17,6 @@ pub fn make_pole_figures(
     no_description_text: bool,
     elastisity_header: bool,
     n_grains: usize,
-    _time_step: &u64,
     particle_id: u64,
     pole_figure_grid: &Vec<Vec<PoleFigure>>,
     lambert: &Lambert,
@@ -26,7 +25,6 @@ pub fn make_pole_figures(
     time: f64,
     gam: f64,
     color_gradient_selection: String,
-    max_count_method: String,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let before = Instant::now();
 
@@ -359,15 +357,8 @@ pub fn make_pole_figures(
                 horizontal_figure_number, vertical_figure_number
             );
 
-            let max_count_value_original =
-                &pole_figure_grid[horizontal_figure_number][vertical_figure_number].max_count;
-
-            let max_count_value_colorscale = match &max_count_method[..] {
-                "divide 2" => max_count_value_original / 2.0,
-                "divide 3" => max_count_value_original / 3.0,
-                "divide 4" => max_count_value_original / 4.0,
-                _ => *max_count_value_original,
-            };
+            let max_count_value =
+                pole_figure_grid[horizontal_figure_number][vertical_figure_number].max_count;
 
             if horizontal_figure_number == 0 {
                 let mut chart = ChartBuilder::on(&right_areas[vertical_figure_number])
@@ -378,31 +369,13 @@ pub fn make_pole_figures(
                     .y_label_area_size(100)
                     .caption(
                         if small_figure {
-                            format!(
-                                "{:.2}{}",
-                                *max_count_value_original,
-                                match &max_count_method[..] {
-                                    "divide 2" => "/2",
-                                    "divide 3" => "/3",
-                                    "divide 4" => "/4",
-                                    _ => "",
-                                }
-                            )
+                            format!("{:.2}", max_count_value)
                         } else {
-                            format!(
-                                "{:.2}{}",
-                                *max_count_value_original,
-                                match &max_count_method[..] {
-                                    "divide 2" => "/2",
-                                    "divide 3" => "/3",
-                                    "divide 4" => "/4",
-                                    _ => "",
-                                }
-                            )
+                            format!("{:.2}", max_count_value)
                         },
                         ("helvetica", font_size_figure),
                     )
-                    .build_cartesian_2d(0.0..1.0, 0.0..max_count_value_colorscale)?;
+                    .build_cartesian_2d(0.0..1.0, 0.0..max_count_value)?;
 
                 chart
                     .configure_mesh()
@@ -416,16 +389,15 @@ pub fn make_pole_figures(
 
                 let legend_size = 151;
 
-                let mut matrix = [max_count_value_colorscale; 151];
+                let mut matrix = [max_count_value; 151];
 
                 for i in 0..legend_size - 1 {
-                    matrix[i] = i as f64 * max_count_value_colorscale / (legend_size as f64 - 1.0);
+                    matrix[i] = i as f64 * max_count_value / (legend_size as f64 - 1.0);
                 }
 
                 for i in 0..legend_size - 1 {
-                    let picked_color = color_gradient.get(
-                        ((matrix[i]).powf(gam) / (max_count_value_colorscale.powf(gam))) as f32,
-                    );
+                    let picked_color = color_gradient
+                        .get(((matrix[i]).powf(gam) / (max_count_value.powf(gam))) as f32);
                     let picked_rgb_color = RGBColor(
                         (picked_color.red * 255.0) as u8,
                         (picked_color.green * 255.0) as u8,
@@ -497,10 +469,8 @@ pub fn make_pole_figures(
 
             for i in 0..npts - 1 {
                 for j in 0..npts - 1 {
-                    let picked_color = color_gradient.get(
-                        ((counts[[i, j]]).powf(gam) / (max_count_value_colorscale.powf(gam)))
-                            as f32,
-                    );
+                    let picked_color = color_gradient
+                        .get(((counts[[i, j]]).powf(gam) / (max_count_value.powf(gam))) as f32);
                     let picked_rgb_color = RGBColor(
                         (picked_color.red * 255.0) as u8,
                         (picked_color.green * 255.0) as u8,

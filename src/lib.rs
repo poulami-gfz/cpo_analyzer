@@ -299,8 +299,6 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
 
                 let color_gradient_selection = "batlow";
 
-                let max_count_method = "full"; //"full";//"divide 2 and round down";
-
                 println!(
                     "particle ids size {}",
                     pole_figure_configuration.particle_ids.len()
@@ -361,7 +359,7 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
                         config_axis_string = format!("{}Axis_", config_axis_string.clone());
 
                         let output_file = format!(
-                            "{}{}_{}{}{}{}_g{}_sp{}_mc{}_t{:05}.{:05}_km100.png",
+                            "{}{}_{}{}{}{}_g{}_sp{}_t{:05}.{:05}.png",
                             lpo_dir,
                             file_prefix_figures,
                             if elastisity_header {
@@ -374,12 +372,6 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
                             color_gradient_selection,
                             gam,
                             sphere_points,
-                            match max_count_method {
-                                "divide 2" => "dv2",
-                                "divide 3" => "dv3",
-                                "divide 4" => "dv4",
-                                _ => "full",
-                            },
                             time_step,
                             particle_id
                         );
@@ -670,7 +662,6 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
                             pole_figure_configuration.no_description_text,
                             elastisity_header,
                             n_grains,
-                            &time_step,
                             0,
                             &pole_figure_grid,
                             &lambert,
@@ -679,7 +670,6 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
                             time,
                             gam,
                             color_gradient_selection.to_string(),
-                            max_count_method.to_string(),
                         )
                         .unwrap();
 
@@ -725,7 +715,9 @@ fn euler_angles_to_rotation_matrix(
 
 /// Following method in Robin and Jowett, Tectonophysics, 1986
 /// Computerized contouring and statistical evaluation of orientation data
-/// using contouring circles and continuous weighting functions
+/// using contouring circles and continuous weighting functions.
+/// For the k value we use a combination between option 2 and 3, where option
+/// 2 is used as long as k is larger as 100, otherwise it is set to 100.
 fn gaussian_orientation_counts(
     particles: &Array2<f64>,
     sphere_point_grid: &Array2<f64>,
