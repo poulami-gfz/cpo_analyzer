@@ -195,14 +195,10 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
         let lpo_dir = base_dir.clone() + &experiment_dir;
 
         // get a vector with the time for all the timesteps
-        println!(
-            "file = {}",
-            &config.pole_figures.as_ref().unwrap().time_data_file
-        );
         let statistics_file =
             lpo_dir.to_owned() + &config.pole_figures.as_ref().unwrap().time_data_file;
 
-        println!("  file:{}", statistics_file);
+        println!("time data file:{}", statistics_file);
         let file = File::open(statistics_file).unwrap();
         let reader = BufReader::new(file);
 
@@ -274,13 +270,8 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
                 let time = timestep_to_time[time_step as usize];
 
                 println!(
-                    "info: {}, {},-- {}, {}, -- time_step = {}, time = {}",
-                    before_timestep,
-                    after_timestep,
-                    timestep_to_time[before_timestep],
-                    timestep_to_time[after_timestep],
-                    time_step,
-                    time
+                    "Processing time {} (requested time: {}), located in timestep : {}",
+                    time, output_time, time_step,
                 );
 
                 fs::create_dir_all(
@@ -402,7 +393,11 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
                             continue;
                         }
 
-                        println!("  file:{}", angles_file.display());
+                        println!(
+                            "  found particle id {} in:{}",
+                            particle_id,
+                            angles_file.display()
+                        );
                         let file = File::open(angles_file).unwrap();
                         let metadata = file.metadata().unwrap();
 
@@ -430,7 +425,6 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
                         let mut integer = 0;
                         for result in rdr.deserialize() {
                             let record: Record = result.unwrap();
-                            println!("record from file = {:?}", record);
                             if record.id == *particle_id {
                                 let deg_to_rad = std::f64::consts::PI / 180.;
 
@@ -537,8 +531,6 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
                             }
                         }
 
-                        println!("fill olivine array");
-
                         let n_grains = particle_olivine_a_axis_vectors.len();
 
                         let mut pole_figure_grid: Vec<Vec<PoleFigure>> = vec![
@@ -558,11 +550,6 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
                         for axis in pole_figure_configuration.axes.clone() {
                             let mut figure_vertical_axis = 0;
                             for mineral in pole_figure_configuration.minerals.clone() {
-                                println!(
-                                    "figure_horizontal_axis:figure_vertical_axis = {}:{}",
-                                    figure_horizontal_axis, figure_vertical_axis
-                                );
-
                                 let mut particle_arrays = Array2::zeros((n_grains, 3));
                                 for i in 0..n_grains {
                                     for j in 0..3 {
@@ -610,11 +597,6 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
                                         }
                                     }
                                 }
-                                println!(
-                                    "counts shape = {:?}, max value = {}",
-                                    counts.shape(),
-                                    max_count_value
-                                );
 
                                 pole_figure_grid[figure_horizontal_axis][figure_vertical_axis] =
                                     PoleFigure {
@@ -723,7 +705,6 @@ fn gaussian_orientation_counts(
     sphere_point_grid: &Array2<f64>,
     sphere_points: usize,
 ) -> Result<Array2<f64>, Box<dyn std::error::Error>> {
-    println!("shape particles = {:?}", particles.shape());
     let npts = particles.shape()[0];
 
     // Choose k, which defines width of spherical gaussian  (table 3)

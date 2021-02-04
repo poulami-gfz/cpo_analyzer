@@ -26,7 +26,7 @@ pub fn make_pole_figures(
     gam: f64,
     color_gradient_selection: String,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let before = Instant::now();
+    let clock = Instant::now();
 
     let color_gradient = set_color_gradient(color_gradient_selection);
 
@@ -80,9 +80,9 @@ pub fn make_pole_figures(
         number_of_figures_vertical as u32 * figure_height
     };
 
-    println!("    Before drawing: Elapsed time: {:.2?}", before.elapsed());
+    println!("    Before drawing: Elapsed time: {:.2?}", clock.elapsed());
     let path_string = output_file.to_string_lossy().into_owned();
-    println!("    save file to {}", path_string);
+
     let root = BitMapBackend::new(
         &path_string,
         (total_figure_width + legend_width, total_figure_height),
@@ -90,7 +90,7 @@ pub fn make_pole_figures(
     .into_drawing_area();
     root.fill(&WHITE)?;
 
-    println!("    made root: Elapsed time: {:.2?}", before.elapsed());
+    println!("    made root: Elapsed time: {:.2?}", clock.elapsed());
     let (header, body) = if elastisity_header {
         root.split_vertically(150)
     } else {
@@ -113,7 +113,7 @@ pub fn make_pole_figures(
         // Do stuff in header
         println!(
             "    start computing anisotropy: Elapsed time: {:.2?}",
-            before.elapsed()
+            clock.elapsed()
         );
         // preprocessing particle data:
         let pr = particle_record;
@@ -184,9 +184,9 @@ pub fn make_pole_figures(
 
         println!(
             "    end computing anisotropy: Elapsed time: {:.2?}",
-            before.elapsed()
+            clock.elapsed()
         );
-        println!("    start header: Elapsed time: {:.2?}", before.elapsed());
+        println!("    start header: Elapsed time: {:.2?}", clock.elapsed());
 
         header
         .draw(&Text::new(
@@ -228,7 +228,7 @@ pub fn make_pole_figures(
             (font_type, font_size_header).into_font(),
         ))?;
 
-        println!("    mid header 3: Elapsed time: {:.2?}", before.elapsed());
+        println!("    mid header: Elapsed time: {:.2?}", clock.elapsed());
         header.draw(&Text::new(
             format!(
                 "tet%={:.2},{:.2},{:.2}",
@@ -241,7 +241,6 @@ pub fn make_pole_figures(
             ),
             (font_type, font_size_header).into_font(),
         ))?;
-        println!("    mid header 4: Elapsed time: {:.2?}", before.elapsed());
         header.draw(&Text::new(
             format!(
                 "t/a%={:.2},{:.2},{:.2}",
@@ -335,9 +334,9 @@ pub fn make_pole_figures(
             (font_type, font_size_header).into_font(),
         ))?;
 
-        println!("    end header: Elapsed time: {:.2?}", before.elapsed());
+        println!("    end header: Elapsed time: {:.2?}", clock.elapsed());
     }
-    println!("    start body: Elapsed time: {:.2?}", before.elapsed());
+    println!("    start body: Elapsed time: {:.2?}", clock.elapsed());
     // do stuff in body:
 
     let font_size_figure = if small_figure { 35 } else { 45 };
@@ -345,18 +344,12 @@ pub fn make_pole_figures(
 
     let drawing_areas_horizontal = left.split_evenly((1, number_of_figures_horizontal));
 
-    //println!("    number of figures = {}", number_of_figures);
     for horizontal_figure_number in 0..number_of_figures_horizontal {
         let drawing_areas_vertical = drawing_areas_horizontal[horizontal_figure_number]
             .split_evenly((number_of_figures_vertical, 1));
         let right_areas = right.split_evenly((number_of_figures_vertical, 1));
 
         for vertical_figure_number in 0..number_of_figures_vertical {
-            println!(
-                "horizontal_figure_number:vertical_figure_number = {}:{}",
-                horizontal_figure_number, vertical_figure_number
-            );
-
             let max_count_value =
                 pole_figure_grid[horizontal_figure_number][vertical_figure_number].max_count;
 
@@ -462,10 +455,6 @@ pub fn make_pole_figures(
                     }
                 }
             }
-            println!(
-                "      before 1st drawing: Elapsed time: {:.2?}",
-                before.elapsed()
-            );
 
             for i in 0..npts - 1 {
                 for j in 0..npts - 1 {
@@ -490,10 +479,6 @@ pub fn make_pole_figures(
                 Into::<ShapeStyle>::into(&BLACK).stroke_width(5),
             )))?;
 
-            println!(
-                "      before 2st drawing: Elapsed time: {:.2?}",
-                before.elapsed()
-            );
             if !no_description_text {
                 drawing_areas_vertical[vertical_figure_number]
                     .draw(&Text::new(
@@ -527,18 +512,22 @@ pub fn make_pole_figures(
                 ),
                 (font_type, font_size_figure).into_font(),
             ))?;
+
+            println!(
+                "      made pole figures subfigure {}:{}. Elapsed time: {:.2?}",
+                horizontal_figure_number,
+                vertical_figure_number,
+                clock.elapsed()
+            );
+
             // end of for loop
         }
-
-        println!(
-            "      made one of the figures: Elapsed time: {:.2?}",
-            before.elapsed()
-        );
     }
 
     println!(
-        "    After make_polefigures: Elapsed time: {:.2?}",
-        before.elapsed()
+        "    Made set of polefigures for figure {}. Elapsed time: {:.2?}",
+        path_string,
+        clock.elapsed()
     );
 
     Ok(())
