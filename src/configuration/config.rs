@@ -1,4 +1,4 @@
-use crate::pole_figures::pole_figure_configuration::PoleFiguresConfiguration;
+use crate::configuration::pole_figure_configuration::PoleFiguresConfiguration;
 use serde_derive::Deserialize;
 /// Global configuration file containing the information on where to find, read and how to analyze the CPO data.
 #[derive(Deserialize)]
