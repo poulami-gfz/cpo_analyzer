@@ -1,11 +1,25 @@
 use palette::gradient::*;
 use palette::rgb::*;
+use serde_derive::{Deserialize, Serialize};
+use strum::Display;
 
-/// This function sets the color gradient based on the a provided string. Options are `vik`, `batlow`, `standard`,
-/// `imola`, `hawaii` and `roma`.
-pub fn set_color_gradient(color_gradient_selection: String) -> Gradient<LinSrgb> {
-    match &color_gradient_selection[..] {
-        "vik" => Gradient::with_domain(vec![
+/// A enum to define what axis of the pole figure should be plotted.
+#[derive(Display, Serialize, Deserialize, Debug, Clone)]
+pub enum ColorGradient {
+    Vik,
+    Batlow,
+    Simple,
+    Imola,
+    Hawaii,
+    Roma,
+}
+
+/// This function sets the color gradient based on the a provided string. Available options are `Vik`,
+/// `Batlow`, `Simple`, `Imola`, `Hawaii` and `Roma`, which are all, except for `Simple`, from
+/// [http://www.fabiocrameri.ch/colourmaps.php](http://www.fabiocrameri.ch/colourmaps.php).
+pub fn set_color_gradient(color_gradient_selection: &ColorGradient) -> Gradient<LinSrgb> {
+    match &color_gradient_selection {
+        ColorGradient::Vik => Gradient::with_domain(vec![
             (0.000000, LinSrgb::new(0.0013282, 0.069836, 0.37953)),
             (0.003922, LinSrgb::new(0.0023664, 0.076475, 0.38352)),
             (0.007843, LinSrgb::new(0.0033042, 0.083083, 0.38749)),
@@ -263,7 +277,7 @@ pub fn set_color_gradient(color_gradient_selection: String) -> Gradient<LinSrgb>
             (0.996078, LinSrgb::new(0.35679, 0.0040345, 0.030327)),
             (1.000000, LinSrgb::new(0.35042, 6.1141e-05, 0.030499)),
         ]),
-        "batlow" => Gradient::with_domain(vec![
+        ColorGradient::Batlow => Gradient::with_domain(vec![
             (0.000000, LinSrgb::new(0.0051932, 0.098238, 0.34984)),
             (0.003922, LinSrgb::new(0.0090652, 0.10449, 0.35093)),
             (0.007843, LinSrgb::new(0.012963, 0.11078, 0.35199)),
@@ -521,7 +535,7 @@ pub fn set_color_gradient(color_gradient_selection: String) -> Gradient<LinSrgb>
             (0.996078, LinSrgb::new(0.98205, 0.79723, 0.97207)),
             (1.000000, LinSrgb::new(0.98135, 0.80041, 0.98127)),
         ]),
-        "standard" => {
+        ColorGradient::Simple => {
             let one_eleventh = 1. / 11.;
             Gradient::with_domain(vec![
                 (0.0, LinSrgb::new(0.164, 0.043, 0.85)),
@@ -538,7 +552,7 @@ pub fn set_color_gradient(color_gradient_selection: String) -> Gradient<LinSrgb>
                 (1., LinSrgb::new(0.65, 0.0, 0.13)),
             ])
         }
-        "imola" => Gradient::with_domain(vec![
+        ColorGradient::Imola => Gradient::with_domain(vec![
             (0.000000, LinSrgb::new(0.10144, 0.20011, 0.70019)),
             (0.003922, LinSrgb::new(0.10328, 0.20301, 0.69881)),
             (0.007843, LinSrgb::new(0.10496, 0.2059, 0.69742)),
@@ -796,7 +810,7 @@ pub fn set_color_gradient(color_gradient_selection: String) -> Gradient<LinSrgb>
             (0.996078, LinSrgb::new(0.9918, 0.99724, 0.40012)),
             (1.000000, LinSrgb::new(1.0000, 0.99999, 0.40009)),
         ]),
-        "hawaii" => Gradient::with_domain(vec![
+        ColorGradient::Hawaii => Gradient::with_domain(vec![
             (0.000000, LinSrgb::new(0.55054, 0.006842, 0.45198)),
             (0.003922, LinSrgb::new(0.55149, 0.015367, 0.44797)),
             (0.007843, LinSrgb::new(0.55243, 0.023795, 0.444)),
@@ -1054,7 +1068,7 @@ pub fn set_color_gradient(color_gradient_selection: String) -> Gradient<LinSrgb>
             (0.996078, LinSrgb::new(0.69306, 0.94866, 0.9908)),
             (1.000000, LinSrgb::new(0.70378, 0.94898, 0.99377)),
         ]),
-        "roma" => Gradient::with_domain(vec![
+        ColorGradient::Roma => Gradient::with_domain(vec![
             (0.000000, LinSrgb::new(0.49684, 0.099626, 0.000000)),
             (0.003922, LinSrgb::new(0.50141, 0.11159, 0.0038271)),
             (0.007843, LinSrgb::new(0.50595, 0.12281, 0.0075362)),
@@ -1312,6 +1326,5 @@ pub fn set_color_gradient(color_gradient_selection: String) -> Gradient<LinSrgb>
             (0.996078, LinSrgb::new(0.10761, 0.20611, 0.60255)),
             (1.000000, LinSrgb::new(0.1037, 0.20006, 0.59999)),
         ]),
-        _ => Gradient::with_domain(vec![]),
     }
 }

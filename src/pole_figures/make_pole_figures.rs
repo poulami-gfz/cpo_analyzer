@@ -2,10 +2,11 @@ use ndarray::Array;
 use ndarray::Zip;
 use plotters::prelude::*;
 
+use crate::color_gradients::*;
 use crate::configuration::particle_record::ParticleRecord;
 use crate::pole_figures::{
-    color_gradients::set_color_gradient, crystal_axis::CrystalAxes, lambert::Lambert,
-    minerals::Mineral, percentage::Percentage, pole_figure::PoleFigure,
+    crystal_axis::CrystalAxes, lambert::Lambert, minerals::Mineral, percentage::Percentage,
+    pole_figure::PoleFigure,
 };
 
 use std::path::Path;
@@ -24,7 +25,7 @@ pub fn make_pole_figures(
     particle_record: &ParticleRecord,
     time: f64,
     gam: f64,
-    color_gradient_selection: String,
+    color_gradient_selection: &ColorGradient,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let clock = Instant::now();
 
