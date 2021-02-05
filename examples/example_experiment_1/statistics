@@ -1,0 +1,5 @@
+# timestep_size time particle_LPO
+0.5 0 particle_LPO
+0.5 0.5 particle_LPO
+0.5 1.0 particle_LPO
+0.5 1.5 particle_LPO
