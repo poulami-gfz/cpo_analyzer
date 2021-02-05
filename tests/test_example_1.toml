@@ -4,7 +4,7 @@ experiment_dirs = ["example_experiment_1/"]
 compressed = false
 
 [pole_figures]
-    figure_output_dir = "test_results/"
+    figure_output_dir = "test_results_binary/"
     elastisity_header = true
     small_figure = true
     no_description_text = false
