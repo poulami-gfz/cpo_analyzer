@@ -1,5 +1,6 @@
 use std::vec;
 
+use crate::color_gradients::*;
 use crate::pole_figures::{crystal_axis::CrystalAxes, minerals::Mineral};
 
 use serde_derive::Deserialize;
@@ -45,6 +46,12 @@ pub struct PoleFiguresConfiguration {
     #[serde(default = "figure_output_prefix")]
     pub figure_output_prefix: String,
 
+    /// Optional value of the color gradient. Available options are `Vik`, `Batlow`, `Simple`, `Imola`, `Hawaii` and `Roma`,
+    /// which are all, except for `Simple`, from [http://www.fabiocrameri.ch/colourmaps.php](http://www.fabiocrameri.ch/colourmaps.php).
+    /// The default value is `Batlow`.
+    #[serde(default = "color_scale")]
+    pub color_scale: ColorGradient,
+
     /// Optional value whether to inluce elasticity information in the header of the polefigure.
     /// Default is true.
     #[serde(default = "default_true")]
@@ -85,6 +92,7 @@ impl Default for PoleFiguresConfiguration {
             grain_data_file_prefix: "particle_CPO/weighted_CPO".to_string(),
             figure_output_dir: "CPO_figures/".to_string(),
             figure_output_prefix: "weighted_LPO".to_string(),
+            color_scale: ColorGradient::Batlow,
             elastisity_header: true,
             small_figure: false,
             no_description_text: false,
@@ -137,4 +145,11 @@ fn figure_output_prefix() -> String {
         ..PoleFiguresConfiguration::default()
     }
     .figure_output_prefix
+}
+
+fn color_scale() -> ColorGradient {
+    PoleFiguresConfiguration {
+        ..PoleFiguresConfiguration::default()
+    }
+    .color_scale
 }

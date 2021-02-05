@@ -54,6 +54,7 @@
 //!   axes = ["AAxis","BAxis","CAxis"]
 //!   minerals = ["Olivine","Enstatite"]
 //! ```
+pub mod color_gradients;
 pub mod configuration;
 pub mod pole_figures;
 
@@ -288,8 +289,6 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
 
                 let sphere_points = 301; //76;//151;
 
-                let color_gradient_selection = "batlow";
-
                 println!(
                     "particle ids size {}",
                     pole_figure_configuration.particle_ids.len()
@@ -360,7 +359,7 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
                             },
                             config_mineral_string,
                             config_axis_string,
-                            color_gradient_selection,
+                            pole_figure_configuration.color_scale.to_string(),
                             gam,
                             sphere_points,
                             time_step,
@@ -651,7 +650,7 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
                             &particle_record,
                             time,
                             gam,
-                            color_gradient_selection.to_string(),
+                            &pole_figure_configuration.color_scale,
                         )
                         .unwrap();
 

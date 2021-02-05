@@ -16,3 +16,4 @@ serde_bytes = "0.11.3"
 structopt = "0.3"
 rayon = "1.4.0"
 libflate = "1.0.3"
+strum = { version = "0.20", features = ["derive"] }
