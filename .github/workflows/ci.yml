@@ -65,19 +65,15 @@ jobs:
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
-    - name: run examples
-      run: cargo run tests/test_example_1.toml
-    - if: startsWith(matrix.os, 'ubuntu') 
-      name: Test examples
-      run: | 
-           compare -metric AE examples/example_experiment_1/CPO_figures/weighted_LPO_elastic_oli_ens_A-B-C-Axis_Batlow_g1_sp301_t00001.00000.png examples/example_experiment_1/test_results/weighted_LPO_elastic_oli_ens_A-B-C-Axis_Batlow_g1_sp301_t00001.00000.png null 
     - name: Run doc
       run: cargo doc --verbose
 
-    - name: Run cargo-tarpaulin
+    - if: startsWith(matrix.os, 'ubuntu')
+      name: Run cargo-tarpaulin
       uses: actions-rs/tarpaulin@v0.1
 
-    - name: Upload to codecov.io
+    - if: startsWith(matrix.os, 'ubuntu')
+      name: Upload to codecov.io
       uses: codecov/codecov-action@v1
       with:
         fail_ci_if_error:     true
