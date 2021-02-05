@@ -1,0 +1,14 @@
+base_dir = "examples/"
+experiment_dirs = ["example_experiment_1/"]
+compressed = false
+
+[pole_figures]
+    elastisity_header = true
+    small_figure = true
+    no_description_text = false
+    color_scale = "Batlow"
+    times = [0.6,1.0]
+    particle_ids = [0]
+    axes = ["AAxis","BAxis","CAxis"]
+    minerals = ["Olivine","Enstatite"]
+
