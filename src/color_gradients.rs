@@ -1328,3 +1328,181 @@ pub fn set_color_gradient(color_gradient_selection: &ColorGradient) -> Gradient<
         ]),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_colors() {
+        let color_gradient = set_color_gradient(&ColorGradient::Batlow);
+        assert_eq!(
+            color_gradient.get(0.0),
+            Rgb {
+                red: 0.0051932,
+                green: 0.098238,
+                blue: 0.34984,
+                standard: std::marker::PhantomData
+            }
+        );
+        assert_eq!(
+            color_gradient.get(0.501961),
+            Rgb {
+                red: 0.51125,
+                green: 0.5109,
+                blue: 0.1933,
+                standard: std::marker::PhantomData
+            }
+        );
+        assert_eq!(
+            color_gradient.get(0.996078),
+            Rgb {
+                red: 0.98205,
+                green: 0.79723,
+                blue: 0.97207,
+                standard: std::marker::PhantomData
+            }
+        );
+        let color_gradient = set_color_gradient(&ColorGradient::Hawaii);
+        assert_eq!(
+            color_gradient.get(0.0),
+            Rgb {
+                red: 0.55054,
+                green: 0.006842,
+                blue: 0.45198,
+                standard: std::marker::PhantomData
+            }
+        );
+        assert_eq!(
+            color_gradient.get(0.501961),
+            Rgb {
+                red: 0.61115,
+                green: 0.58982,
+                blue: 0.11132,
+                standard: std::marker::PhantomData
+            }
+        );
+        assert_eq!(
+            color_gradient.get(0.996078),
+            Rgb {
+                red: 0.69306,
+                green: 0.94866,
+                blue: 0.9908,
+                standard: std::marker::PhantomData
+            }
+        );
+        let color_gradient = set_color_gradient(&ColorGradient::Imola);
+        assert_eq!(
+            color_gradient.get(0.0),
+            Rgb {
+                red: 0.10144,
+                green: 0.20011,
+                blue: 0.70019,
+                standard: std::marker::PhantomData
+            }
+        );
+        assert_eq!(
+            color_gradient.get(0.501961),
+            Rgb {
+                red: 0.3289,
+                green: 0.52626,
+                blue: 0.4976,
+                standard: std::marker::PhantomData
+            }
+        );
+        assert_eq!(
+            color_gradient.get(0.996078),
+            Rgb {
+                red: 0.9918,
+                green: 0.99724,
+                blue: 0.40012,
+                standard: std::marker::PhantomData
+            }
+        );
+        let color_gradient = set_color_gradient(&ColorGradient::Roma);
+        assert_eq!(
+            color_gradient.get(0.0),
+            Rgb {
+                red: 0.49684,
+                green: 0.099626,
+                blue: 0.000000,
+                standard: std::marker::PhantomData
+            }
+        );
+        assert_eq!(
+            color_gradient.get(0.501961),
+            Rgb {
+                red: 0.79243,
+                green: 0.92166,
+                blue: 0.78883,
+                standard: std::marker::PhantomData
+            }
+        );
+        assert_eq!(
+            color_gradient.get(0.996078),
+            Rgb {
+                red: 0.10761,
+                green: 0.20611,
+                blue: 0.60255,
+                standard: std::marker::PhantomData
+            }
+        );
+        let color_gradient = set_color_gradient(&ColorGradient::Simple);
+        let one_eleventh = 1. / 11.;
+        assert_eq!(
+            color_gradient.get(0.0),
+            Rgb {
+                red: 0.164,
+                green: 0.043,
+                blue: 0.85,
+                standard: std::marker::PhantomData
+            }
+        );
+        assert_eq!(
+            color_gradient.get(5. * one_eleventh),
+            Rgb {
+                red: 0.88,
+                green: 1.0,
+                blue: 1.0,
+                standard: std::marker::PhantomData
+            }
+        );
+        assert_eq!(
+            color_gradient.get(10. * one_eleventh),
+            Rgb {
+                red: 0.85,
+                green: 0.15,
+                blue: 0.196,
+                standard: std::marker::PhantomData
+            }
+        );
+        let color_gradient = set_color_gradient(&ColorGradient::Vik);
+        assert_eq!(
+            color_gradient.get(0.0),
+            Rgb {
+                red: 0.0013282,
+                green: 0.069836,
+                blue: 0.37953,
+                standard: std::marker::PhantomData
+            }
+        );
+        assert_eq!(
+            color_gradient.get(0.501961),
+            Rgb {
+                red: 0.92648,
+                green: 0.89717,
+                blue: 0.87969,
+                standard: std::marker::PhantomData
+            }
+        );
+        assert_eq!(
+            color_gradient.get(0.996078),
+            Rgb {
+                red: 0.35679,
+                green: 0.0040345,
+                blue: 0.030327,
+                standard: std::marker::PhantomData
+            }
+        );
+    }
+}
