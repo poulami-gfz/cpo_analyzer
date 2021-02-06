@@ -22,5 +22,5 @@ script:
         rustup component add rustfmt;
         cargo fmt -- --check;
       fi
-    - cargo test
+    - cargo test -- --nocapture
     - cargo doc
