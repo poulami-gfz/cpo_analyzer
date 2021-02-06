@@ -1,4 +1,4 @@
-![Continous integration](https://github.com/MFraters/cpo_analyzer/workflows/Continous%20integration/badge.svg) [![Build Status](https://travis-ci.com/MFraters/cpo_analyzer.svg?branch=main)](https://travis-ci.com/MFraters/cpo_analyzer)
+![Continous integration](https://github.com/MFraters/cpo_analyzer/workflows/Continous%20integration/badge.svg) [![Build Status](https://travis-ci.com/MFraters/cpo_analyzer.svg?branch=main)](https://travis-ci.com/MFraters/cpo_analyzer) [![codecov](https://codecov.io/gh/MFraters/cpo_analyzer/branch/main/graph/badge.svg?token=UOFZRLZ8PF)](https://codecov.io/gh/MFraters/cpo_analyzer)
 # CPO analyzer
 
 This crate contains tools to analyzer Crystal/Lattice Preffered Orientation (CPO/LPO) data. It is currently only able to crate sets of polefigures from ASPECT CPO data, but other type of inputs and plots of analysis are in the scope of this crate.
