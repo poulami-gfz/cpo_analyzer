@@ -1,5 +1,6 @@
 ![Continous integration](https://github.com/MFraters/cpo_analyzer/workflows/Continous%20integration/badge.svg) [![Build Status](https://travis-ci.com/MFraters/cpo_analyzer.svg?branch=main)](https://travis-ci.com/MFraters/cpo_analyzer) [![codecov](https://codecov.io/gh/MFraters/cpo_analyzer/branch/main/graph/badge.svg?token=UOFZRLZ8PF)](https://codecov.io/gh/MFraters/cpo_analyzer)
 # CPO analyzer
+![pole figure](doc/images/weighted_LPO_elastic_oli_ens_A-B-C-Axis_Batlow_g1_sp301_t00010.00000.png)
 
 This crate contains tools to analyzer Crystal/Lattice Preffered Orientation (CPO/LPO) data. It is currently designed to easily create pole figure from the CPO data produced by ASPECT (https://github.com/geodynamics/aspect/issues/3885), but it is not limited to that. However, other type of inputs and plots of analysis are in the scope of this crate.
 
