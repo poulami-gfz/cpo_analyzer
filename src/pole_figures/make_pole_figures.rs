@@ -191,7 +191,7 @@ pub fn make_pole_figures(
 
         header
         .draw(&Text::new(
-            format!("id={},time={:.5e}, position=({:.3e}:{:.3e}:{:.3e}), ODT={:.4}, grains={}, anisotropic%={:.4}",
+            format!("id={}, time={:.5e}, position=({:.3e}:{:.3e}:{:.3e}), ODT={:.1}, grains={}, anisotropic%={:.4}",
             particle_id,
             time,
             particle_record.x,
