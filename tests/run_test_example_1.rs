@@ -18,13 +18,25 @@ fn test_library_run() -> Result<(), Box<dyn std::error::Error>> {
         .figure_output_dir = "test_results_library/".to_string();
     process_configuration(configuration).unwrap();
 
-    let cmd = Command::cargo_bin("compare");
-    match cmd {
-        Ok(mut cmd) => {
-            cmd.arg("-metric AE examples/example_experiment_1/CPO_figures/weighted_LPO_elastic_oli_ens_A-B-C-Axis_Batlow_g1_sp301_t00001.00000.png examples/example_experiment_1/test_results_library/weighted_LPO_elastic_oli_ens_A-B-C-Axis_Batlow_g1_sp301_t00001.00000.png null");
-            cmd.assert().success();
-        }
-        Err(_) => println!("program compare from magick not found. Test did not check the output."),
+    // test whether the command works by comparing the same image.
+    let cmd = Command::new("compare")
+    .arg("-metric")
+    .arg("AE")
+    .arg("examples/example_experiment_1/CPO_figures/weighted_LPO_elastic_oli_ens_A-B-C-Axis_Batlow_g1_sp301_t00001.00000.png")
+    .arg("examples/example_experiment_1/CPO_figures/weighted_LPO_elastic_oli_ens_A-B-C-Axis_Batlow_g1_sp301_t00001.00000.png")
+    .arg("null")
+    .ok();
+    if cmd.is_ok() {
+        Command::new("compare")
+        .arg("-metric")
+        .arg("AE")
+        .arg("examples/example_experiment_1/CPO_figures/weighted_LPO_elastic_oli_ens_A-B-C-Axis_Batlow_g1_sp301_t00001.00000.png")
+        .arg("examples/example_experiment_1/test_results_binary/weighted_LPO_elastic_oli_ens_A-B-C-Axis_Batlow_g1_sp301_t00001.00000.png")
+        .arg("null")
+        .assert()
+        .success();
+    } else {
+        println!("Program compare from magick not found. Test did not check the output.");
     };
 
     Ok(())
@@ -36,13 +48,25 @@ fn test_binary() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("tests/test_example_1.toml");
     cmd.assert().success();
 
-    let cmd = Command::cargo_bin("compare");
-    match cmd {
-        Ok(mut cmd) => {
-            cmd.arg("-metric AE examples/example_experiment_1/CPO_figures/weighted_LPO_elastic_oli_ens_A-B-C-Axis_Batlow_g1_sp301_t00001.00000.png examples/example_experiment_1/test_results_binary/weighted_LPO_elastic_oli_ens_A-B-C-Axis_Batlow_g1_sp301_t00001.00000.png null");
-            cmd.assert().success();
-        }
-        Err(_) => println!("program compare from magick not found. Test did not check the output."),
+    // test whether the command works by comparing the same image.
+    let cmd = Command::new("compare")
+    .arg("-metric")
+    .arg("AE")
+    .arg("examples/example_experiment_1/CPO_figures/weighted_LPO_elastic_oli_ens_A-B-C-Axis_Batlow_g1_sp301_t00001.00000.png")
+    .arg("examples/example_experiment_1/CPO_figures/weighted_LPO_elastic_oli_ens_A-B-C-Axis_Batlow_g1_sp301_t00001.00000.png")
+    .arg("null")
+    .ok();
+    if cmd.is_ok() {
+        Command::new("compare")
+        .arg("-metric")
+        .arg("AE")
+        .arg("examples/example_experiment_1/CPO_figures/weighted_LPO_elastic_oli_ens_A-B-C-Axis_Batlow_g1_sp301_t00001.00000.png")
+        .arg("examples/example_experiment_1/test_results_binary/weighted_LPO_elastic_oli_ens_A-B-C-Axis_Batlow_g1_sp301_t00001.00000.png")
+        .arg("null")
+        .assert()
+        .success();
+    } else {
+        println!("Program compare from magick not found. Test did not check the output.");
     };
 
     Ok(())
