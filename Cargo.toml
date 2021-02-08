@@ -1,8 +1,15 @@
 [package]
 name = "cpo_analyzer"
 version = "0.1.0-pre"
-authors = ["Menno Fraters <menno.fraters@outlook.com>"]
+authors = ["Menno Fraters <menno.fraters@outlook.com>", "Magali Billen <mibillen@ucdavis.edu"]
+license-file = "LICENSE"
+description = "Tools to analyzer Crystal Preferred Orientation data, including creating polefigures."
+readme = "README.md"
+homepage = "https://github.com/MFraters/cpo_analyzer"
+repository = "https://github.com/MFraters/cpo_analyzer"
 edition = "2018"
+keywords = ["CPO","crystallographic preferred orientation", "LPO", "lattice preferred orientation", "pole figures"]
+categories = ["science"]
 
 [dependencies]
 ndarray = { version = "0.13.0", features = ["rayon"] }
