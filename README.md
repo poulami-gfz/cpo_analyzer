@@ -53,3 +53,8 @@ To run the analyzer, a configuration file is needed. The configuration files are
  ```
 
 Note that there are more options availble then shown in this example, which are currently only visible in the code (`src/configuration/` dir) and the code documentation. There is also a more elaborate example in the `example` folder.
+
+# Installation
+## Dependencies
+### Ubuntu Linux
+`sudo apt install pkg-config libfreetype6-dev libfontconfig1-dev`
