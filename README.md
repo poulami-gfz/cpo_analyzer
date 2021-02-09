@@ -55,6 +55,10 @@ To run the analyzer, a configuration file is needed. The configuration files are
 Note that there are more options availble then shown in this example, which are currently only visible in the code (`src/configuration/` dir) and the code documentation. There is also a more elaborate example in the `example` folder.
 
 # Installation
+## User installation
+The CPO Analyzer is written in rust and starting from version 0.1.0 published on [crates.io](https://crates.io). For this option, first `cargo` needs to be [installed](https://doc.rust-lang.org/cargo/getting-started/installation.html). Then users should be able to use `cargo install cpo_analyzer` to install the program. Note that this installation method is untested until the first publication is made on [crates.io](https://crates.io).
+## Developer installation
+There are no special instructions for installation by cloning the git repository and running `cargo build` or `cargo run config_file.toml`. Just note that this build the debug version, which is significantly slower than the release version. To build/run the release version add the `--release` flag.
 ## Dependencies
 ### Ubuntu Linux
 `sudo apt install pkg-config libfreetype6-dev libfontconfig1-dev`
