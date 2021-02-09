@@ -2,7 +2,7 @@
 name = "cpo_analyzer"
 version = "0.1.0-pre"
 authors = ["Menno Fraters <menno.fraters@outlook.com>", "Magali Billen <mibillen@ucdavis.edu"]
-license-file = "GPL-2.0-or-later"
+license = "GPL-2.0-or-later"
 description = "Tools to analyzer Crystal Preferred Orientation data, including creating polefigures."
 readme = "README.md"
 homepage = "https://github.com/MFraters/cpo_analyzer"
