@@ -8,7 +8,7 @@ readme = "README.md"
 homepage = "https://github.com/MFraters/cpo_analyzer"
 repository = "https://github.com/MFraters/cpo_analyzer"
 edition = "2018"
-keywords = ["CPO","crystallographic preferred orientation", "LPO", "lattice preferred orientation", "pole figures"]
+keywords = ["CPO", "LPO","crytal preferred","orientation", "pole figures"]
 categories = ["science"]
 
 [dependencies]
