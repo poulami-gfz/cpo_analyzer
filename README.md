@@ -1,4 +1,4 @@
-![Continous integration](https://github.com/MFraters/cpo_analyzer/workflows/Continous%20integration/badge.svg) [![Build Status](https://travis-ci.com/MFraters/cpo_analyzer.svg?branch=main)](https://travis-ci.com/MFraters/cpo_analyzer) [![codecov](https://codecov.io/gh/MFraters/cpo_analyzer/branch/main/graph/badge.svg?token=UOFZRLZ8PF)](https://codecov.io/gh/MFraters/cpo_analyzer)
+[![Build](https://github.com/MFraters/cpo_analyzer/workflows/Continous%20integration/badge.svg)](https://github.com/MFraters/cpo_analyzer/actions)  [![Build Status](https://travis-ci.com/MFraters/cpo_analyzer.svg?branch=main)](https://travis-ci.com/MFraters/cpo_analyzer)   [![codecov](https://codecov.io/gh/MFraters/cpo_analyzer/branch/main/graph/badge.svg?token=UOFZRLZ8PF)](https://codecov.io/gh/MFraters/cpo_analyzer)   [![crates.io](https://img.shields.io/crates/v/cpo_analyzer.svg)](https://crates.io/crates/cpo_analyzer)   [![doc.rs](https://docs.rs/cpo_analyzer/badge.svg)](https://docs.rs/cpo_analyzer/)
 # CPO analyzer
 ![pole figure](doc/images/weighted_LPO_elastic_oli_ens_A-B-C-Axis_Batlow_g1_sp301_t00010.00000.png)
 
@@ -56,7 +56,7 @@ Note that there are more options availble then shown in this example, which are 
 
 # Installation
 ## User installation
-The CPO Analyzer is written in rust and starting from version 0.1.0 published on [crates.io](https://crates.io). For this option, first `cargo` needs to be [installed](https://doc.rust-lang.org/cargo/getting-started/installation.html). Then users should be able to use `cargo install cpo_analyzer` to install the program. Note that this installation method is untested until the first publication is made on [crates.io](https://crates.io).
+The CPO Analyzer is written in rust and starting from version 0.1.0 published on [crates.io](https://crates.io), and can therefore be installed with `cargo install cpo_analyzer`. For this option, first `cargo` needs to be [installed](https://doc.rust-lang.org/cargo/getting-started/installation.html). 
 ## Developer installation
 There are no special instructions for installation by cloning the git repository and running `cargo build` or `cargo run config_file.toml`. Just note that this build the debug version, which is significantly slower than the release version. To build/run the release version add the `--release` flag.
 ## Dependencies
