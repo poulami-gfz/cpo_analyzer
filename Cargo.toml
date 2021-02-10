@@ -1,6 +1,6 @@
 [package]
 name = "cpo_analyzer"
-version = "0.1.0-pre"
+version = "0.1.0"
 authors = ["Menno Fraters <menno.fraters@outlook.com>", "Magali Billen <mibillen@ucdavis.edu"]
 license = "GPL-2.0-or-later"
 description = "Tools to analyzer Crystal Preferred Orientation data, including creating polefigures."
