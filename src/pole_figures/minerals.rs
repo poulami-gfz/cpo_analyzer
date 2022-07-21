@@ -24,5 +24,5 @@ use serde_derive::Deserialize;
 #[derive(Deserialize, Clone)]
 pub enum Mineral {
     Olivine,
-    Enstatite,
+ //   Enstatite,
 }

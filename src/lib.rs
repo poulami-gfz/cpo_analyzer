@@ -318,9 +318,9 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
                     let mut particle_olivine_a_axis_vectors = Vec::new();
                     let mut particle_olivine_b_axis_vectors = Vec::new();
                     let mut particle_olivine_c_axis_vectors = Vec::new();
-                    let mut particle_enstatite_a_axis_vectors = Vec::new();
-                    let mut particle_enstatite_b_axis_vectors = Vec::new();
-                    let mut particle_enstatite_c_axis_vectors = Vec::new();
+           //         let mut particle_enstatite_a_axis_vectors = Vec::new();
+           //         let mut particle_enstatite_b_axis_vectors = Vec::new();
+           //         let mut particle_enstatite_c_axis_vectors = Vec::new();
 
                     let mut file_found: bool = false;
                     while !file_found {
@@ -342,9 +342,9 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
                                     Mineral::Olivine => {
                                         "oli_"
                                     }
-                                    Mineral::Enstatite => {
-                                        "ens_"
-                                    }
+                         //           Mineral::Enstatite => {
+                         //               "ens_"
+                         //           }
                                 }
                             )
                         }
@@ -464,20 +464,20 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
                                     .push(rotation_matrix.row(2).to_owned());
 
                                 // enstatite
-                                let euler_angles = Array::from(vec![
-                                    record.mineral_1_EA_phi.unwrap() * deg_to_rad,
-                                    record.mineral_1_EA_theta.unwrap() * deg_to_rad,
-                                    record.mineral_1_EA_z.unwrap() * deg_to_rad,
-                                ]);
-                                let rotation_matrix =
-                                    euler_angles_to_rotation_matrix(euler_angles).unwrap();
+               //                 let euler_angles = Array::from(vec![
+               //                     record.mineral_1_EA_phi.unwrap() * deg_to_rad,
+               //                     record.mineral_1_EA_theta.unwrap() * deg_to_rad,
+               //                     record.mineral_1_EA_z.unwrap() * deg_to_rad,
+              //                  ]);
+              //                  let rotation_matrix =
+              //                      euler_angles_to_rotation_matrix(euler_angles).unwrap();
 
-                                particle_enstatite_a_axis_vectors
-                                    .push(rotation_matrix.row(0).to_owned());
-                                particle_enstatite_b_axis_vectors
-                                    .push(rotation_matrix.row(1).to_owned());
-                                particle_enstatite_c_axis_vectors
-                                    .push(rotation_matrix.row(2).to_owned());
+               //                 particle_enstatite_a_axis_vectors
+               //                     .push(rotation_matrix.row(0).to_owned());
+               //                 particle_enstatite_b_axis_vectors
+               //                     .push(rotation_matrix.row(1).to_owned());
+               //                 particle_enstatite_c_axis_vectors
+               //                     .push(rotation_matrix.row(2).to_owned());
                             }
                             integer = integer + 1;
                         }
@@ -577,25 +577,25 @@ pub fn process_configuration(config: Config) -> Result<(), Box<dyn std::error::E
                                                 Mineral::Olivine => {
                                                     particle_olivine_a_axis_vectors[i][j]
                                                 }
-                                                Mineral::Enstatite => {
-                                                    particle_enstatite_a_axis_vectors[i][j]
-                                                }
+                                         //       Mineral::Enstatite => {
+                                         //           particle_enstatite_a_axis_vectors[i][j]
+                                         //       }
                                             },
                                             CrystalAxes::BAxis => match mineral {
                                                 Mineral::Olivine => {
                                                     particle_olivine_b_axis_vectors[i][j]
                                                 }
-                                                Mineral::Enstatite => {
-                                                    particle_enstatite_b_axis_vectors[i][j]
-                                                }
+                                 //               Mineral::Enstatite => {
+                                 //                   particle_enstatite_b_axis_vectors[i][j]
+                                 //               }
                                             },
                                             CrystalAxes::CAxis => match mineral {
                                                 Mineral::Olivine => {
                                                     particle_olivine_c_axis_vectors[i][j]
                                                 }
-                                                Mineral::Enstatite => {
-                                                    particle_enstatite_c_axis_vectors[i][j]
-                                                }
+                             //                   Mineral::Enstatite => {
+                             //                       particle_enstatite_c_axis_vectors[i][j]
+                             //                   }
                                             },
                                         };
                                     }

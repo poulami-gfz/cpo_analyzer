@@ -1,20 +1,20 @@
 /*
-  Copyright (C) 2021 by the authors of the CPO Analyzer code.
+  Copyright (C) 2021 by the authors of the LPO Analyzer code.
 
-  This file is part of the CPO Analyzer.
+  This file is part of the LPO Analyzer.
 
-  The CPO Analyzer is free software; you can redistribute it and/or modify
+  The LPO Analyzer is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2, or (at your option)
   any later version.
 
-  The CPO Analyzer is distributed in the hope that it will be useful,
+  The LPO Analyzer is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
-  along with the CPO Analyzer; see the file LICENSE.  If not see
+  along with the LPO Analyzer; see the file LICENSE.  If not see
   <http://www.gnu.org/licenses/>.
 */
 
@@ -39,7 +39,7 @@ pub struct PoleFiguresConfiguration {
     /// search through all files of the same timestep untill it find the file containing the particle id it was looking for.
     /// The program assumes that all the particles of the same id are not spread out over sever files, but stored in one
     /// file. Having multiple particle id's per file is fine.
-    /// The default value is `particle_CPO/particles`.
+    /// The default value is `particle_LPO/particles`.
     #[serde(default = "particle_data_file_prefix")]
     pub particle_data_file_prefix: String,
 
@@ -50,13 +50,13 @@ pub struct PoleFiguresConfiguration {
     /// search through all files of the same timestep untill it find the file containing the particle id it was looking for.
     /// The program assumes that all the particles of the same id are not spread out over sever files, but stored in one
     /// file. Having multiple particle id's per file is fine.
-    /// The default value is `particle_CPO/weighted_CPO`.
+    /// The default value is `particle_LPO/weighted_LPO`.
     #[serde(default = "grain_data_file_prefix")]
     pub grain_data_file_prefix: String,
 
     /// Optional value of the prefix where to write out the produced pole figures. The program will add a postfix containing
     /// informatio about individual variables and settings such as the timestep and axes, etc.
-    /// The default value is `CPO_figures/`.
+    /// The default value is `LPO_figures/`.
     #[serde(default = "figure_output_dir")]
     pub figure_output_dir: String,
 
@@ -108,9 +108,9 @@ impl Default for PoleFiguresConfiguration {
     fn default() -> Self {
         PoleFiguresConfiguration {
             time_data_file: "statistics".to_string(),
-            particle_data_file_prefix: "particle_CPO/particles".to_string(),
-            grain_data_file_prefix: "particle_CPO/weighted_CPO".to_string(),
-            figure_output_dir: "CPO_figures/".to_string(),
+            particle_data_file_prefix: "particle_LPO/particles".to_string(),
+            grain_data_file_prefix: "particle_LPO/weighted_LPO".to_string(),
+            figure_output_dir: "LPO_figures/".to_string(),
             figure_output_prefix: "weighted_LPO".to_string(),
             color_scale: ColorGradient::Batlow,
             elastisity_header: true,

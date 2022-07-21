@@ -435,7 +435,7 @@ pub fn make_pole_figures(
             let mineral_string =
                 match pole_figure_grid[horizontal_figure_number][vertical_figure_number].mineral {
                     Mineral::Olivine => "olivine",
-                    Mineral::Enstatite => "enstatite",
+                //    Mineral::Enstatite => "enstatite",
                 };
             let mut chart = ChartBuilder::on(&drawing_areas_vertical[vertical_figure_number])
                 .build_cartesian_2d(
